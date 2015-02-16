@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require 'trollop'
+require 'magic-wild-rice'
+
+ARGV[0] = "--help" if ARGV.length() == 0
+
+opts = Trollop::options do
+  opt :all, "Run everything"
+end
+
+magic = MagicWildRice::MagicWildRice.new
+magic.install_dependencies
+
+if opts.all
+end
+
+magic.plots
