@@ -1,2 +1,5 @@
-require 'magic-wild-rice/magic-wild-rice.rb'
-require 'magic-wild-rice/version.rb'
+require 'magic-wild-rice/cmd'
+require 'magic-wild-rice/fastqc'
+require 'magic-wild-rice/magic-wild-rice'
+require 'magic-wild-rice/plots'
+require 'magic-wild-rice/version'

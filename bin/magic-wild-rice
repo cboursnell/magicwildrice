@@ -13,6 +13,6 @@ magic = MagicWildRice::MagicWildRice.new
 magic.install_dependencies
 
 if opts.all
+  magic.fastqc
+  magic.plots
 end
-
-magic.plots
