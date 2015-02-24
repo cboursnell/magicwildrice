@@ -9,7 +9,7 @@ opts = Trollop::options do
   opt :all, "Run everything"
 end
 
-magic = MagicWildRice::MagicWildRice.new
+magic = MagicWildRice::MagicWildRice.new "data.yaml"
 magic.install_dependencies
 
 if opts.all

@@ -19,8 +19,7 @@ if ( !is.null(opt$help) ) {
   q(status=1);
 }
 
-#print("path:")
-#print(opt$path)
+print(opt$path)
 setwd(opt$path)
 
 data <- read.table("per_base_composition.txt", header=T,sep="\t",colClasses=c(rep("numeric",5)))

@@ -13,35 +13,33 @@ class TestFastqc < Test::Unit::TestCase
     teardown do
     end
 
-    # should "do something" do
-    # end
-
     should "count bases" do
-      a = @fastqc.acgt_content("AAAACGTNY")
-      assert_equal 1, a[0]["A"]
+      a = @fastqc.acgt_content("AAAACGTNY", "TTTTGCTNY")
+      assert_equal 1, a[:left][0]["A"]
     end
 
     should "count kmers" do
-      a = @fastqc.kmer_count ("ACGCGATGCTGC")
-      assert_equal 1, a["ACGCGA"]
+      seq1 = "ACGCGATGCTGC"
+      seq2 = "TAGCGATCGATC"
+      a = @fastqc.kmer_count seq1, seq2
+      assert_equal 1, a[:left]["ACGCGA"]
     end
 
     should "get read lengths" do
-      @fastqc.length_hist("AAAAAAAAAAAAAAAAAAAAAAAAAA")
-      @fastqc.length_hist("AAAAAAAAAAAAAAAAAAAAAAAAA\n")
-      a = @fastqc.length_hist("AAAAAAAAAAAAAAAAAAAAAAAA\n")
-      assert_equal 1, a[26]
-      assert_equal 1, a[25]
-      assert_equal 1, a[24]
+      seq1 = "A"*30
+      seq2 = "T"*30
+      a = @fastqc.length_hist seq1, seq2
+      assert_equal 1, a[:left][30]
+      assert_equal 1, a[:right][30]
     end
 
     should "get read quality per base" do
-      qual = "BP\\cceeeggggghiiiifihihhhhhhffdghffhihhdfhfgfhhfhbXagfhihhhi"
-      qual << "eghgggeeeeecbdd]`bccccccbbcbcabccc`cb^cc"
-      a = @fastqc.quality qual
-      qual = "BP\\ccacdggfgfhhiighiiihhifggeeccbb`^accac`bccccacc[bcdcccccccc"
-      qual << "ccccccabc`abb`abbccccccaX[aaccccaaBBBB"
-      a = @fastqc.quality qual
+      qual1 = "BPbcceeeggggghiiiifihihhhhhhffdghffhihhdfhfgfhhfhbXagfhihhhi"
+      qual1 << "eghgggeeeeecbdd]`bccccccbbcbcabccc`cb^cc"
+      qual2 = "BPaccacdggfgfhhiighiiihhifggeeccbb`^accac`bccccacc[bcdcccccccc"
+      qual2 << "ccccccabc`abb`abbccccccaX[aaccccaaBBBB"
+      a = @fastqc.quality qual1, qual2
+      assert_equal 1, a[:left][0][66]
     end
 
     should "guess phred" do
@@ -57,18 +55,24 @@ class TestFastqc < Test::Unit::TestCase
     end
 
     should "create output files" do
-      # Dir.mktmpdir do |tmpdir|
-        # Dir.chdir(tmpdir) do |dir|
-          file = File.join(File.dirname(__FILE__), 'data', 'test_1.fastq')
-          @fastqc.run file
-          @fastqc.read_length
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir(tmpdir) do |dir|
+          file1 = File.join(File.dirname(__FILE__), 'data', 'test_1.fastq')
+          file2 = File.join(File.dirname(__FILE__), 'data', 'test_2.fastq')
+          @fastqc.run file1, file2
+          read_length = @fastqc.read_length
           @fastqc.output
-          assert File.exist?("test_1.fastq-per_base_composition.txt")
-          assert File.exist?("test_1.fastq-per_base_quality.txt")
-          assert File.exist?("test_1.fastq-read_length_hist.txt")
-          assert File.exist?("test_1.fastq-read_count.txt")
-        # end
-      # end
+          assert_equal 100, read_length[:left][100], "read length"
+          assert File.exist?("left/per_base_composition.txt"),
+                             "per base composition file doesn't exist"
+          assert File.exist?("left/per_base_quality.txt"),
+                             "per_base_quality doesn't exist"
+          assert File.exist?("read_length_hist.txt"),
+                             "read_length_hist doesn't exist"
+          assert File.exist?("left/read_count.txt"),
+                             "read_count doesn't exist"
+        end
+      end
     end
 
   end

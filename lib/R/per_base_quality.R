@@ -19,8 +19,6 @@ if ( !is.null(opt$help) ) {
   q(status=1);
 }
 
-#print("path:")
-#print(opt$path)
 setwd(opt$path)
 
 data <- read.table("per_base_quality_tile.txt", header=T,sep="\t")
@@ -38,7 +36,7 @@ mdata <- melt(data, id.vars="base")
 mdata$variable <- as.numeric(as.character(mdata$variable))
 names(mdata) <- c("base", "quality", "value")
 
-mean <- read.table("per_base_quality.txt", header=T, sep="\t")
+mean <- read.table("per_base_quality.txt", header=T, sep="\t", colClasses=c("numeric", "numeric"))
 
 p <- ggplot(mdata) + 
     geom_tile(aes(x=base,y=quality,fill=value)) +

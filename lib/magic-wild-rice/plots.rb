@@ -25,6 +25,12 @@ module MagicWildRice
       rscript.run
     end
 
+    def read_count
+      script = File.join(@rpath, "read_counts.R")
+      rscript = Cmd.new("Rscript #{script} -p #{@dir}")
+      rscript.run
+    end
+
   end
 
 end

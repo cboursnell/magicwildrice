@@ -27,6 +27,7 @@ doc/
 .ruby-version
 
 # large test files not for repo
+data
 dryrun
 *.blast
 *.phr
