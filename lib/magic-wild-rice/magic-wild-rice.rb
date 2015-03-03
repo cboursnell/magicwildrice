@@ -1,6 +1,7 @@
 module MagicWildRice
 
   require 'fileutils'
+  require 'yaml'
 
   class MagicWildRice
 
@@ -20,6 +21,18 @@ module MagicWildRice
     end
 
     def install_dependencies
+    end
+
+    def synteny
+      synteny = Synteny.new
+      # all vs all
+      list = []
+      @files.each do |info|
+        if info["genome"]
+          list << info
+        end
+      end
+      synteny.run list
     end
 
     def fastqc

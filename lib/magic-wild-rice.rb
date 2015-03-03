@@ -1,5 +1,8 @@
 require 'magic-wild-rice/cmd'
+require 'magic-wild-rice/downloader'
 require 'magic-wild-rice/fastqc'
 require 'magic-wild-rice/magic-wild-rice'
 require 'magic-wild-rice/plots'
+require 'magic-wild-rice/synteny'
+require 'magic-wild-rice/tophat'
 require 'magic-wild-rice/version'

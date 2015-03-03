@@ -27,25 +27,23 @@ class TestRice < Test::Unit::TestCase
       assert_equal "Oryza Sativa", files[0]["desc"], "desc"
     end
 
-    # should "do fastqc" do
-    #   @rice.load_data
-    #   Dir.mktmpdir do |tmpdir|
-    #     Dir.chdir(tmpdir) do
-    #       @rice.fastqc
-    #     end
-    #   end
-    # end
+    should "do fastqc" do
+      @rice.load_data
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir(tmpdir) do
+          @rice.fastqc
+        end
+      end
+    end
 
     should "make plots" do
       @rice.load_data
-      # Dir.mktmpdir do |tmpdir|
-      tmpdir = Dir.mktmpdir
-      puts tmpdir
+      Dir.mktmpdir do |tmpdir|
         Dir.chdir(tmpdir) do
           @rice.fastqc
           @rice.plots
         end
-      # end
+      end
 
     end
 
