@@ -7,6 +7,8 @@ module MagicWildRice
     def initialize details
       @crosses = []
       @parents = []
+      @unique = {}
+      @maximums = {}
       details.collect do |info|
         if info["name"].length == 4
           @crosses << info
@@ -21,6 +23,10 @@ module MagicWildRice
     def run threads
       # map reads from 4way to each parent
       map
+      puts "scanning"
+      scan
+      puts "selecting"
+      select_unique
       #
     end
 
@@ -40,7 +46,7 @@ module MagicWildRice
           Dir.chdir(path) do
             mapper.build_index reference
             sam = mapper.map_reads left, right
-            puts sam
+            parent["sam"] = sam
           end
         end
       end
@@ -54,10 +60,70 @@ module MagicWildRice
           path = File.expand_path(File.join("data", "crossing",
                                                          "#{parent["name"]}"))
           Dir.chdir(path) do
-            puts "analysing sam file in #{path}"
+            puts "#{parent["name"]}"
+            analyse(parent["sam"], parent["name"])
           end
         end
       end
+    end
+
+    def analyse sam, name
+      File.open(sam).each_line do |line|
+        unless line.start_with?("@")
+          cols = line.split("\t")
+          readname = cols[0]
+          flag = cols[1].to_i
+          unless read_unmapped?(flag)
+            chrom = cols[2]
+            position = cols[3].to_i
+            mapq = cols[4].to_i
+            if mapq > 69
+              @unique[readname] ||= {}
+              pair = first_in_pair?(flag) ? :left : :right
+              @unique[readname][pair] = { name => {
+                                          :chrom => chrom,
+                                          :position => position}
+                                        }
+              @maximums[name] ||= {}
+              if @maximums[name][chrom] and @maximums[name][chrom] < position
+                @maximums[name][chrom] = position
+              else
+                @maximums[name][chrom] = position
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def select_unique
+      File.open("output", "wb") do |out|
+        @unique.each do |readname, hash|
+          hash.each do |pair, info|
+            if info.size == 1
+              info.each do |name, pos|
+                if @maximums[name]
+                  if @maximums[name][pos[:chrom]] > 1_000_000
+                    out.write "#{name}\t#{pos[:chrom]}\t#{pos[:position]}\n"
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def first_in_pair? flag
+      flag & 0x40 != 0
+    end
+
+    def second_in_pair? flag
+      flag & 0x80 !=0
+    end
+
+    def read_unmapped? flag
+      flag & 0x4 != 0
     end
 
     def download info

@@ -30,6 +30,7 @@ module MagicWildRice
       unless File.exists? @sam
         snapcmd = build_paired_cmd(left, right, threads)
         runner = Cmd.new snapcmd
+        puts snapcmd
         runner.run
         save_readcount runner.stdout
         unless runner.status.success?
@@ -49,8 +50,9 @@ module MagicWildRice
         cmd << " -t#{threads}"
         cmd << " -bSpace" # contig name terminates with space char
         runner = Cmd.new cmd
+        puts cmd
         runner.run
-        if !runner.status.success?
+        unless runner.status.success?
           err = runner.stderr
           msg = "Failed to build Snap index\n#{runner.stderr}"
           raise RuntimeError.new(msg)
