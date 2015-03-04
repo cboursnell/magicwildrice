@@ -19,7 +19,9 @@ module MagicWildRice
     end
 
     def run
-
+      # map reads from 4way to each parent
+      map
+      #
     end
 
     def map
@@ -37,7 +39,22 @@ module MagicWildRice
           right = File.expand_path(parent["files"][1])
           Dir.chdir(path) do
             mapper.build_index reference
-            mapper.map_reads left, right
+            sam = mapper.map_reads left, right
+            puts sam
+          end
+        end
+      end
+    end
+
+    def scan
+      # go through each sam file individually and find the read pairs that
+      # only mapped to one genome and also have a mapq score above X
+      @crosses.each do |cross|
+        @parents.each do |parent|
+          path = File.expand_path(File.join("data", "crossing",
+                                                         "#{parent["name"]}"))
+          Dir.chdir(path) do
+            puts "analysing sam file in #{path}"
           end
         end
       end

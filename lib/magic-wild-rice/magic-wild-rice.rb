@@ -36,8 +36,8 @@ module MagicWildRice
     end
 
     def crossing
-      crossing = Crossing.new
-      crossing.run @files
+      crossing = Crossing.new @files
+      crossing.run
     end
 
     def fastqc

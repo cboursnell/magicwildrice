@@ -18,7 +18,7 @@ module MagicWildRice
         download info
         fasta = tophat info
         info["transcriptome"] = fasta
-        puts "loading gtf"
+        puts "loading gtf of #{info["desc"]}"
         load_gtf info
       end
       # do pairwise crb-blast
