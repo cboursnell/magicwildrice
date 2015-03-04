@@ -18,7 +18,7 @@ module MagicWildRice
       end
     end
 
-    def run
+    def run threads
       # map reads from 4way to each parent
       map
       #

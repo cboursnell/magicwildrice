@@ -12,7 +12,7 @@ module MagicWildRice
       @annotation = {}
     end
 
-    def run list
+    def run list, threads=8
       # assemble using reference genome
       list.each do |info|
         download info

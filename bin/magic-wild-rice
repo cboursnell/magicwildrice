@@ -10,9 +10,10 @@ opts = Trollop::options do
   opt :fastqc, "Run fastqc"
   opt :synteny, "Run synteny analysis"
   opt :crossing, "Run cross analysis"
+  opt :threads, "How many threads", :type => :int, :default => 8
 end
 
-magic = MagicWildRice::MagicWildRice.new "data.yaml"
+magic = MagicWildRice::MagicWildRice.new "data.yaml", opts.threads
 magic.load_data
 magic.install_dependencies
 

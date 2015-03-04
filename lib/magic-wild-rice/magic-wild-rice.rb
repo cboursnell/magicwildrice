@@ -7,8 +7,9 @@ module MagicWildRice
 
     attr_reader :files
 
-    def initialize yaml
+    def initialize yaml, threads=8
       @data_file = File.expand_path(yaml)
+      @threads = threads
     end
 
     def load_data
@@ -32,12 +33,12 @@ module MagicWildRice
           list << info
         end
       end
-      synteny.run list
+      synteny.run list, @threads
     end
 
     def crossing
       crossing = Crossing.new @files
-      crossing.run
+      crossing.run @threads
     end
 
     def fastqc
