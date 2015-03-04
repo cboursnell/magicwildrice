@@ -1,6 +1,5 @@
 
 require 'fixwhich'
-require 'open3'
 
 module MagicWildRice
 

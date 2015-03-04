@@ -5,18 +5,27 @@
   files:
   - test/data/IRRI154_1.fq
   - test/data/IRRI154_2.fq
+  genome:
+    url: 'ftp://ftp.ensemblgenomes.org/pub/plants/release-25/fasta/oryza_sativa/dna/Oryza_sativa.IRGSP-1.0.25.dna_sm.genome.fa.gz'
+    fa: 'Oryza_sativa.IRGSP-1.0.25.dna_sm.genome.fa'
 - name: R
   desc: Oryza Rufipogon
   id: IRGC 106123
   files:
   - test/data/IRGC-106123_1.fq
   - test/data/IRGC-106123_2.fq
+  genome:
+    url: 'ftp://ftp.ensemblgenomes.org/pub/plants/release-25/fasta/oryza_rufipogon/dna/Oryza_rufipogon.PRJEB4137.25.dna_sm.genome.fa.gz'
+    fa: 'Oryza_rufipogon.PRJEB4137.25.dna_sm.genome.fa'
 - name: G
   desc: Oryza Glaberrima
   id: IRGC 96717
   files:
   - test/data/IRGC-96717_1.fq
   - test/data/IRGC-96717_2.fq
+  genome:
+    url: 'ftp://ftp.ensemblgenomes.org/pub/plants/release-25/fasta/oryza_glaberrima/dna/Oryza_glaberrima.AGI1.1.25.dna_sm.genome.fa.gz'
+    fa: 'Oryza_glaberrima.AGI1.1.25.dna_sm.genome.fa'
 - name: SR
   desc: Sativa/Rufipogon
   id: IR 105460

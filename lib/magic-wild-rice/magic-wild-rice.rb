@@ -35,6 +35,11 @@ module MagicWildRice
       synteny.run list
     end
 
+    def crossing
+      crossing = Crossing.new
+      crossing.run @files
+    end
+
     def fastqc
       return if @files.nil? or @files.size == 0
       read_count = File.join("data", "fastqc", "read_counts.txt")
