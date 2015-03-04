@@ -1,0 +1,1 @@
+## MAGIC Wild Rice Project
