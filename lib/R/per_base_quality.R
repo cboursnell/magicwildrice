@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/bin/env Rscript
 
 library(ggplot2)
 library(reshape2)
@@ -38,7 +38,7 @@ names(mdata) <- c("base", "quality", "value")
 
 mean <- read.table("per_base_quality.txt", header=T, sep="\t", colClasses=c("numeric", "numeric"))
 
-p <- ggplot(mdata) + 
+p <- ggplot(mdata) +
     geom_tile(aes(x=base,y=quality,fill=value)) +
     geom_line(data=mean, aes(x=base,y=mean)) +
     scale_fill_gradient2(low="white", high="red", space="Lab", na.value = "grey50", guide="colorbar")
