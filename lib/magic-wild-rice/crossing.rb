@@ -69,30 +69,31 @@ module MagicWildRice
 
     def analyse sam, name
       count = 0
-      File.open(sam).each_line do |line|
-        count += 1
-        print "." if count % 1000000 == 0
-
-        unless line.start_with?("@")
-          cols = line.split("\t")
-          readname = cols[0]
-          flag = cols[1].to_i
-          unless read_unmapped?(flag)
-            chrom = cols[2]
-            position = cols[3].to_i
-            mapq = cols[4].to_i
-            if mapq > 69
-              @unique[readname] ||= {}
-              pair = first_in_pair?(flag) ? :left : :right
-              @unique[readname][pair] = { name => {
-                                          :chrom => chrom,
-                                          :position => position}
-                                        }
-              @maximums[name] ||= {}
-              if @maximums[name][chrom] and @maximums[name][chrom] < position
-                @maximums[name][chrom] = position
-              else
-                @maximums[name][chrom] = position
+      unless File.exist?("#{name}_output.txt")
+        File.open(sam).each_line do |line|
+          count += 1
+          print "." if count % 1_000_000 == 0
+          unless line.start_with?("@")
+            cols = line.split("\t")
+            readname = cols[0]
+            flag = cols[1].to_i
+            unless read_unmapped?(flag)
+              chrom = cols[2]
+              position = cols[3].to_i
+              mapq = cols[4].to_i
+              if mapq > 69
+                @unique[readname] ||= {}
+                pair = first_in_pair?(flag) ? :left : :right
+                @unique[readname][pair] = { name => {
+                                            :chrom => chrom,
+                                            :position => position}
+                                          }
+                @maximums[name] ||= {}
+                if @maximums[name][chrom] and @maximums[name][chrom] < position
+                  @maximums[name][chrom] = position
+                else
+                  @maximums[name][chrom] = position
+                end
               end
             end
           end
@@ -102,7 +103,7 @@ module MagicWildRice
     end
 
     def select_unique
-      buckets = []
+      buckets = {}
       @unique.each do |readname, hash|
         hash.each do |pair, info|
           if info.size == 1
@@ -110,8 +111,9 @@ module MagicWildRice
               if @maximums[name]
                 if @maximums[name][pos[:chrom]] > 1_000_000
                   buckets[name] ||= {}
+                  chrom = pos[:chrom]
                   buckets[name][chrom] ||= {}
-                  bucket = (position / 10_000).to_i
+                  bucket = (pos[:position] / 10_000).to_i
                   buckets[name][chrom][bucket] ||= 0
                   buckets[name][chrom][bucket] += 1
                 end
