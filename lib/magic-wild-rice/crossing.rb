@@ -68,7 +68,11 @@ module MagicWildRice
     end
 
     def analyse sam, name
+      count = 0
       File.open(sam).each_line do |line|
+        count += 1
+        print "." if count % 1000000 == 0
+
         unless line.start_with?("@")
           cols = line.split("\t")
           readname = cols[0]
@@ -94,20 +98,33 @@ module MagicWildRice
           end
         end
       end
+      puts " Done"
     end
 
     def select_unique
-      File.open("output", "wb") do |out|
-        @unique.each do |readname, hash|
-          hash.each do |pair, info|
-            if info.size == 1
-              info.each do |name, pos|
-                if @maximums[name]
-                  if @maximums[name][pos[:chrom]] > 1_000_000
-                    out.write "#{name}\t#{pos[:chrom]}\t#{pos[:position]}\n"
-                  end
+      buckets = []
+      @unique.each do |readname, hash|
+        hash.each do |pair, info|
+          if info.size == 1
+            info.each do |name, pos|
+              if @maximums[name]
+                if @maximums[name][pos[:chrom]] > 1_000_000
+                  buckets[name] ||= {}
+                  buckets[name][chrom] ||= {}
+                  bucket = (position / 10_000).to_i
+                  buckets[name][chrom][bucket] ||= 0
+                  buckets[name][chrom][bucket] += 1
                 end
               end
+            end
+          end
+        end
+      end
+      buckets.each do |name, info|
+        File.open("#{name}_output.txt","wb") do |out|
+          info.each do |chrom, bucket|
+            bucket.each do |n, count|
+              out.write "#{chrom}\t#{n}\t#{count}\n"
             end
           end
         end
