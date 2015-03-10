@@ -1,3 +1,4 @@
+require 'magic-wild-rice/assembly'
 require 'magic-wild-rice/cmd'
 require 'magic-wild-rice/crossing'
 require 'magic-wild-rice/downloader'

@@ -8,7 +8,7 @@ module MagicWildRice
     def initialize
       @assembler = Tophat.new
       @synteny_list = []
-      @synteny_hash= {}
+      @synteny_hash = {}
       @annotation = {}
     end
 

@@ -24,6 +24,11 @@ module MagicWildRice
     def install_dependencies
     end
 
+    def assembly
+      assembly = Assembly.new @files
+      assembly.run @threads
+    end
+
     def synteny
       synteny = Synteny.new
       # all vs all

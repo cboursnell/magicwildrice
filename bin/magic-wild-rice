@@ -10,6 +10,7 @@ opts = Trollop::options do
   opt :fastqc, "Run fastqc"
   opt :synteny, "Run synteny analysis"
   opt :crossing, "Run cross analysis"
+  opt :assembly, "Assemble crosses"
   opt :threads, "How many threads", :type => :int, :default => 8
 end
 
@@ -28,4 +29,8 @@ end
 
 if opts.crossing or opts.all
   magic.crossing
+end
+
+if opts.assembly or opts.all
+  magic.assembly
 end
