@@ -7,9 +7,9 @@ module MagicWildRice
 
     def initialize
       @idba = Which::which('idba_tran').first
-      raise "error" if @idba.nil?
+      raise "Can't find idba_tran in path" if @idba.nil?
       @fq2fa = Which::which('fq2fa').first
-      raise "error" if @fq2fa.nil?
+      raise "Can't find fq2fa in path" if @fq2fa.nil?
     end
 
     def run left, right, threads = 8

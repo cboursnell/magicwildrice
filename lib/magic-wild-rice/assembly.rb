@@ -94,8 +94,12 @@ module MagicWildRice
         puts "right : #{right}"
         puts "name  : #{name}"
         # soap = Soap.new
-        idba = IdbaTrans.new
-        idba.run left, right
+        path = File.join("data", "assembly", "de_novo")
+        FileUtils.mkdir_p(path)
+        Dir.chdir(path) do
+          idba = IdbaTrans.new
+          idba.run left, right
+        end
       end
     end
 
