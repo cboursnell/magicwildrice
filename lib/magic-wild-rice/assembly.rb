@@ -21,6 +21,7 @@ module MagicWildRice
     end
 
     def run threads
+      @threads = threads
       reference_based
       de_novo
     end
@@ -71,7 +72,7 @@ module MagicWildRice
       puts "path :  #{path}"
       FileUtils.mkdir_p(path)
       Dir.chdir(path) do |dir|
-        assembler = Tophat.new
+        assembler = Tophat.new @threads
         fasta = assembler.run reference, left, right
         path = File.join(path, fasta)
       end

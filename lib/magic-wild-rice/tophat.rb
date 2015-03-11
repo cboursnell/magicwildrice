@@ -45,6 +45,8 @@ module MagicWildRice
       cmd << " #{@index} "
       cmd << " #{left}"
       cmd << " #{right}"
+      puts "*"*12 + " TOPHAT " + "*"*12
+      puts cmd
       mapper = Cmd.new cmd
       unless File.exist?("#{@output}/accepted_hits.sam")
         mapper.run
@@ -61,6 +63,8 @@ module MagicWildRice
       cmd << " -o #{@output} "
       cmd << " -p #{@threads} "
       cmd << " #{@output}/accepted_hits.sam "
+      puts "*"*12 + " CUFFLINKS " + "*"*12
+      puts cmd
       annotate = Cmd.new cmd
       unless File.exist?("#{@output}/transcripts.gtf")
         annotate.run
@@ -78,6 +82,8 @@ module MagicWildRice
       cmd << " -w #{fasta}"
       cmd << " -g #{reference}"
       cmd << " #{@output}/transcripts.gtf"
+      puts "*"*12 + " GFFREAD " + "*"*12
+      puts cmd
       assembly = Cmd.new cmd
       unless File.exist?(fasta)
         assembly.run
