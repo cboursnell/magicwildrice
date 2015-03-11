@@ -86,8 +86,17 @@ module MagicWildRice
       # transrate and choose highest scoring contig from each 'cluster'
       # don't use transrate automatic cutoff
       #
-      ###
-
+      @crosses.each do |info|
+        left = info["files"][0]
+        right = info["files"][1]
+        name = info["desc"].tr("/", "_").downcase
+        puts "left  : #{left}"
+        puts "right : #{right}"
+        puts "name  : #{name}"
+        # soap = Soap.new
+        idba = IdbaTrans.new
+        idba.run left, right
+      end
     end
 
     def download info
