@@ -1,6 +1,7 @@
 module MagicWildRice
 
   require 'fileutils'
+  require 'bio'
 
   class Assembly
 
@@ -37,17 +38,38 @@ module MagicWildRice
         desc.split("/").each do |p|
           @parents.each do |i|
             if i["desc"] =~ /#{p}/
-              cat[i["genome"]["fa"]] = i["desc"].tr(" ", "_").downcase
+              cat[i["desc"].tr(" ", "_").downcase] = i["genome"]["fa"]
             end
           end
         end
+        cat.each do |name, fa|
+          fixed_genome = "#{File.basename(name, File.extname(name))}_fixed.fa"
+          fixed_genome = File.expand_path(File.join("data", "assembly", fixed_genome))
+          unless File.exist?(fixed_genome)
+            puts fixed_genome
+            path = File.expand_path(File.join("data", "genomes", name, fa))
+            output = ""
+            fasta = Bio::FastaFormat.open(path)
+            fasta.each do |entry|
+              contig = entry.entry_id
+              contig = "#{name}_#{contig}"
+              output << ">#{contig}\n"
+              output << "#{entry.seq}\n"
+            end
+            File.open(fixed_genome, "wb") {|out| out.write output}
+          end
+          cat[name] = fixed_genome
+        end
+        # add species name to fasta file before concatenating
+
         cat_name = []
-        cmd = "cat " + cat.keys.reduce("") do |sum, k|
-          name = cat[k]
+        cmd = "cat " + cat.keys.reduce("") do |sum, name|
           cat_name << name
-          sum << "#{File.expand_path(File.join("data", "genomes", name, k))} "
+          path = cat[name]
+          sum << " #{path} "
         end
         genome = "#{cat_name.join("-")}.fa"
+        genome = File.expand_path(File.join("data", "assembly", genome))
         cmd << " > #{genome}"
         puts cmd
         path = File.expand_path(File.join('data', 'assembly'))
