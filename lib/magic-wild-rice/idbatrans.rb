@@ -16,8 +16,11 @@ module MagicWildRice
       @threads = threads
       reads = prepare_reads left, right
       idba = Cmd.new build_cmd(reads)
-      idba.run
-      return "#{@output}/contig.fa"
+      output = "#{@output}/contig.fa"
+      unless File.exist?(output)
+        idba.run
+      end
+      return output
     end
 
     def build_cmd reads

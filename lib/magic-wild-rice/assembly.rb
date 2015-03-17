@@ -120,9 +120,11 @@ module MagicWildRice
         FileUtils.mkdir_p(path)
         Dir.chdir(path) do
           idba = IdbaTrans.new
-          idba.run left, right
+          contigs = idba.run left, right
+          info["idba"] = File.expand_path(contigs)
         end
       end
+      p @crosses
     end
 
     def download info
