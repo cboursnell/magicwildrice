@@ -5,15 +5,15 @@ module MagicWildRice
 
   class IdbaTrans
 
-    def initialize
+    def initialize threads=8
+      @threads = threads
       @idba = Which::which('idba_tran').first
       raise "Can't find idba_tran in path" if @idba.nil?
       @fq2fa = Which::which('fq2fa').first
       raise "Can't find fq2fa in path" if @fq2fa.nil?
     end
 
-    def run left, right, threads = 8
-      @threads = threads
+    def run left, right
       reads = prepare_reads left, right
       idba = Cmd.new build_cmd(reads)
       output = "#{@output}/contig.fa"

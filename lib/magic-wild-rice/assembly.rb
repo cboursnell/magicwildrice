@@ -2,6 +2,7 @@ module MagicWildRice
 
   require 'fileutils'
   require 'bio'
+  require 'preprocessor'
 
   class Assembly
 
@@ -25,6 +26,16 @@ module MagicWildRice
       @threads = threads
       reference_based
       de_novo
+    end
+
+    def run_de_novo threads
+      @threads = threads
+      de_novo
+    end
+
+    def run_reference threads
+      @threads = threads
+      reference
     end
 
     def reference_based
@@ -119,7 +130,11 @@ module MagicWildRice
         path = File.join("data", "assembly", "de_novo")
         FileUtils.mkdir_p(path)
         Dir.chdir(path) do
-          idba = IdbaTrans.new
+          pre = Preprocessor::Preprocessor.new(name, false, @threads, @memory)
+          pre.load_reads(left, right, name)
+          pre.trimmomatic
+          pre.hammer
+          idba = IdbaTrans.new @threads
           contigs = idba.run left, right
           info["idba"] = File.expand_path(contigs)
         end

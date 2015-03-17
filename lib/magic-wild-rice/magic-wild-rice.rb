@@ -26,7 +26,18 @@ module MagicWildRice
 
     def assembly
       assembly = Assembly.new @files
-      assembly.run @threads
+      assembly.run_de_novo @threads
+      assembly.run_reference @threads
+    end
+
+    def de_novo
+      assembly = Assembly.new @files
+      assembly.run_de_novo @threads
+    end
+
+    def reference_based
+      assembly = Assembly.new @files
+      assembly.run_reference @threads
     end
 
     def synteny
