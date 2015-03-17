@@ -72,7 +72,7 @@ module MagicWildRice
           dir_pair = File.join(dir, pair.to_s)
           Dir.chdir(dir) do
             plots = Plots.new dir_pair
-            plots.run_r
+            plots.fastqc
           end
         end
         Dir.chdir(dir) do

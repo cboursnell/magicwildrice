@@ -41,7 +41,18 @@ mean <- read.table("per_base_quality.txt", header=T, sep="\t", colClasses=c("num
 p <- ggplot(mdata) +
     geom_tile(aes(x=base,y=quality,fill=value)) +
     geom_line(data=mean, aes(x=base,y=mean)) +
-    scale_fill_gradient2(low="white", high="red", space="Lab", na.value = "grey50", guide="colorbar")
+    scale_fill_gradient2(low="white", high="red", space="Lab", na.value = "grey50", guide="colorbar") +
+    theme(panel.background = element_rect(fill="white"),
+        panel.grid.minor = element_line(colour=NA),
+        panel.grid.major = element_line(colour=NA),
+        axis.ticks  = element_line(colour="grey50"),
+        axis.ticks.length  = unit(.35, "cm"),
+        axis.text.x = element_text(size = unit(16, "picas")),
+        axis.text.y = element_text(size = unit(16, "picas")),
+        axis.line   = element_line(colour="grey50"),
+        axis.line.x = element_line(colour="grey50"),
+        axis.line.y = element_line(colour="grey50"),
+        plot.margin = unit(c(0.5,1,1,0.5),"cm"))
 
 ggsave(filename="per_base_quality.pdf", plot=p, width=8, height=6)
 

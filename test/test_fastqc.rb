@@ -62,7 +62,7 @@ class TestFastqc < Test::Unit::TestCase
           @fastqc.run file1, file2
           read_length = @fastqc.read_length
           @fastqc.output
-          assert_equal 100, read_length[:left][100], "read length"
+          assert_equal 693, read_length[:left][100], "read length"
           assert File.exist?("left/per_base_composition.txt"),
                              "per base composition file doesn't exist"
           assert File.exist?("left/per_base_quality.txt"),
@@ -71,6 +71,8 @@ class TestFastqc < Test::Unit::TestCase
                              "read_length_hist doesn't exist"
           assert File.exist?("left/read_count.txt"),
                              "read_count doesn't exist"
+          assert File.exist?("left/read_mean_quality.txt"),
+                             "read_mean_quality doesn't exist"
         end
       end
     end

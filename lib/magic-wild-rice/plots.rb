@@ -8,9 +8,10 @@ module MagicWildRice
       @dir = dir
     end
 
-    def run_r
+    def fastqc
       per_base_count
       per_base_quality_tile
+      read_mean_quality
     end
 
     def per_base_count
@@ -21,6 +22,12 @@ module MagicWildRice
 
     def per_base_quality_tile
       script = File.join(@rpath, "per_base_quality.R")
+      rscript = Cmd.new("Rscript #{script} -p #{@dir}")
+      rscript.run
+    end
+
+    def read_mean_quality
+      script = File.join(@rpath, "read_mean_quality.R")
       rscript = Cmd.new("Rscript #{script} -p #{@dir}")
       rscript.run
     end

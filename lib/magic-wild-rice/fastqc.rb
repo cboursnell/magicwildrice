@@ -11,6 +11,7 @@ module MagicWildRice
       @read_length = { :left => [], :right => [] }
       @qual = { :left => [], :right => [] }
       @dibase = {}
+      @mean = { :left  => {}, :right => {} }
       @k = 6
       @read_count = 0
       @min = 200
@@ -19,6 +20,7 @@ module MagicWildRice
       @composition_file = "per_base_composition.txt"
       @quality_file = "per_base_quality.txt"
       @quality_tile_file = "per_base_quality_tile.txt"
+      @mean_quality_file = "read_mean_quality.txt"
       @read_count_file = "read_length_hist.txt"
       @read_length_file = "read_count.txt"
       @dibase_file = "dibase_bias.txt"
@@ -142,16 +144,28 @@ module MagicWildRice
     end
 
     def quality qual1, qual2
+      # left
+      sum = 0
       qual1.chomp.each_char.with_index do |qual, i|
         @qual[:left][i] ||= {}
         @qual[:left][i][qual.ord] ||= 0
         @qual[:left][i][qual.ord] += 1
+        sum += qual.ord
       end
+      mean = (sum/qual1.length.to_f).round(2)
+      @mean[:left][mean] ||= 0
+      @mean[:left][mean] += 1
+      #right
+      sum = 0
       qual2.chomp.each_char.with_index do |qual, i|
         @qual[:right][i] ||= {}
         @qual[:right][i][qual.ord] ||= 0
         @qual[:right][i][qual.ord] += 1
+        sum += qual.ord
       end
+      mean = (sum/qual2.length.to_f).round(2)
+      @mean[:right][mean] ||= 0
+      @mean[:right][mean] += 1
       @qual
     end
 
@@ -189,6 +203,16 @@ module MagicWildRice
           str << "#{i}\t#{mean/total.to_f}\n"
         end
         output = File.join(pair.to_s, @quality_file)
+        File.open(output,"wb") { |io| io.write str }
+
+        # mean read quality histogram
+
+        str = "mean\tcount\n"
+        @mean[pair].each do |mean, count|
+          str << "#{mean}\t#{count}\n"
+        end
+
+        output = File.join(pair.to_s, @mean_quality_file)
         File.open(output,"wb") { |io| io.write str }
 
         # quality for geom_tile
