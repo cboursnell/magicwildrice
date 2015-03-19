@@ -118,6 +118,7 @@ module MagicWildRice
       # merge outputs
       # transrate and choose highest scoring contig from each 'cluster'
       # don't use transrate automatic cutoff
+      @memory = 20
       #
       @crosses.each do |info|
         left = info["files"][0]
@@ -134,6 +135,8 @@ module MagicWildRice
           pre.load_reads(left, right, name)
           pre.trimmomatic
           pre.hammer
+          left = pre.data[0][:current]
+          right = pre.data[1][:current]
           idba = IdbaTrans.new @threads
           contigs = idba.run left, right
           info["idba"] = File.expand_path(contigs)

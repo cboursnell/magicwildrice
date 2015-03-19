@@ -38,9 +38,9 @@ if opts.assembly or opts.all
 end
 
 if opts.de_novo
-  magic.run_de_novo
+  magic.de_novo
 end
 
 if opts.reference_based
-  magic.run_reference
+  magic.reference_based
 end
