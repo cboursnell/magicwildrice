@@ -118,7 +118,7 @@ module MagicWildRice
       # merge outputs
       # transrate and choose highest scoring contig from each 'cluster'
       # don't use transrate automatic cutoff
-      @memory = 20
+      @memory = 90
       #
       @crosses.each do |info|
         left = info["files"][0]
@@ -132,13 +132,13 @@ module MagicWildRice
         FileUtils.mkdir_p(path)
         Dir.chdir(path) do
           pre = Preprocessor::Preprocessor.new(name, false, @threads, @memory)
+          idba = IdbaTrans.new @threads
+          soap = SoapDeNovo.new @threads
           pre.load_reads(left, right, name)
           pre.trimmomatic
           pre.hammer
           left = pre.data[0][:current]
           right = pre.data[1][:current]
-          idba = IdbaTrans.new @threads
-          soap = SoapDeNovo.new @threads
           idba_contigs = idba.run left, right
           soap_contigs = soap.run left, right
           info["idba"] = idba_contigs

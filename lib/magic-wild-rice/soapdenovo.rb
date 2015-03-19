@@ -18,6 +18,11 @@ module MagicWildRice
       output = File.expand_path("#{@name}.scafSeq")
       unless File.exist?(output)
         soap.run
+        unless soap.status.success?
+          puts "Something went wrong with soap"
+          puts soap.stderr
+          puts soap.stdout
+        end
       end
       return output
     end

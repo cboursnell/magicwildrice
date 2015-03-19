@@ -16,16 +16,21 @@ module MagicWildRice
     def run left, right
       reads = prepare_reads left, right
       idba = Cmd.new build_cmd(reads)
+      @output = File.basename(reads, File.extname(reads))
       output = File.expand_path("#{@output}/contig.fa")
       unless File.exist?(output)
         idba.run
+        unless idba.status.success?
+          puts "Something went wrong with idba"
+          puts idba.stderr
+          puts idba.stdout
+        end
       end
       return output
     end
 
     def build_cmd reads
       idba_cmd = "#{@idba} "
-      @output = File.basename(reads, File.extname(reads))
       idba_cmd << "-o #{@output} "            # output
       idba_cmd << "-r #{reads} "              # input
       idba_cmd << "--num_threads #{@threads} " # number of threads
