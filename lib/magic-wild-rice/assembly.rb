@@ -138,8 +138,11 @@ module MagicWildRice
           left = pre.data[0][:current]
           right = pre.data[1][:current]
           idba = IdbaTrans.new @threads
-          contigs = idba.run left, right
-          info["idba"] = File.expand_path(contigs)
+          soap = SoapDeNovo.new @threads
+          idba_contigs = idba.run left, right
+          soap_contigs = soap.run left, right
+          info["idba"] = idba_contigs
+          info["soap"] = soap_contigs
         end
       end
       p @crosses

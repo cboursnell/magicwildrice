@@ -16,7 +16,7 @@ module MagicWildRice
     def run left, right
       reads = prepare_reads left, right
       idba = Cmd.new build_cmd(reads)
-      output = "#{@output}/contig.fa"
+      output = File.expand_path("#{@output}/contig.fa")
       unless File.exist?(output)
         idba.run
       end

@@ -86,6 +86,9 @@ module MagicWildRice
         unless File.exist?(File.join(pair.to_s, @read_length_file))
           found = false
         end
+        unless File.exist?(File.join(pair.to_s, @mean_quality_file))
+          found = false
+        end
       end
       unless File.exist?(@dibase_file)
         found = false

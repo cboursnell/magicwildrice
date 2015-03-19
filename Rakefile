@@ -40,5 +40,12 @@ Rake::TestTask.new do |t|
   t.test_files = ['test/test_assembly.rb']
 end
 
+Rake::TestTask.new do |t|
+  t.name = :soap
+  t.libs << 'test'
+  t.test_files = ['test/test_soap.rb']
+end
+
+
 desc "Run tests"
 task :default => :test
