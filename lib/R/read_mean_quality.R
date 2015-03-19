@@ -24,7 +24,7 @@ setwd(opt$path)
 
 data <- read.table("read_mean_quality.txt", header=T,sep="\t")
 
-p<-ggplot(data, aes(x = mean)) +
+p<-ggplot(data, aes(x = mean, weight=count)) +
   geom_histogram(binwidth=1) +
   ggtitle("Read Mean Quality") +
   theme(panel.background = element_rect(fill="grey90"),
@@ -37,6 +37,7 @@ p<-ggplot(data, aes(x = mean)) +
         axis.line   = element_line(colour="grey50"),
         axis.line.x = element_line(colour="grey50"),
         axis.line.y = element_line(colour="grey50"),
-        plot.margin = unit(c(0.5,1,1,0.5),"cm"))
+        plot.margin = unit(c(0.5,1,1,0.5),"cm"),
+        plot.title = element_text(size = unit(16, "picas")))
 
 ggsave(filename="mean_read_quality.pdf", plot=p, width=8, height=6)
