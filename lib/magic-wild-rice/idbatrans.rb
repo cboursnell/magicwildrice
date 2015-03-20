@@ -15,8 +15,8 @@ module MagicWildRice
 
     def run left, right
       reads = prepare_reads left, right
-      idba = Cmd.new build_cmd(reads)
       @output = File.basename(reads, File.extname(reads))
+      idba = Cmd.new build_cmd(reads)
       output = File.expand_path("#{@output}/contig.fa")
       unless File.exist?(output)
         idba.run
@@ -46,9 +46,11 @@ module MagicWildRice
 
     def prepare_reads left, right
       output = File.basename("#{lcs [left, right]}.fa")
-      cmd = "#{@fq2fa} --merge #{left} #{right} #{output}"
-      merge = Cmd.new cmd
-      merge.run
+      unless File.exist?(output)
+        cmd = "#{@fq2fa} --merge #{left} #{right} #{output}"
+        merge = Cmd.new cmd
+        merge.run
+      end
       return output
     end
 
