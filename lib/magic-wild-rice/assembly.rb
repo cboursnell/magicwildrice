@@ -124,28 +124,77 @@ module MagicWildRice
         left = info["files"][0]
         right = info["files"][1]
         name = info["desc"].tr("/", "_").downcase
-        puts "left  : #{left}"
-        puts "right : #{right}"
         puts "name  : #{name}"
         # soap = Soap.new
-        path = File.join("data", "assembly", "de_novo")
+        path = File.join("data", "assembly", "de_novo", name)
         FileUtils.mkdir_p(path)
         Dir.chdir(path) do
           pre = Preprocessor::Preprocessor.new(name, false, @threads, @memory)
-          idba = IdbaTrans.new @threads
-          soap = SoapDeNovo.new @threads
+          contig_files = []
+
           pre.load_reads(left, right, name)
           pre.trimmomatic
           pre.hammer
           left = pre.data[0][:current]
           right = pre.data[1][:current]
-          idba_contigs = idba.run left, right
-          soap_contigs = soap.run left, right
-          info["idba"] = idba_contigs
-          info["soap"] = soap_contigs
+
+          contig_files << idba left, right
+          contig_files << soap left, right
+          # add more assembly methods here
+
+          # transrate all contigs individually
+          scores = transrate contig_files, left, right
+          # cluster all contigs
+          cluster = Cluster.new
+          cluster.run contig_files
+          # assign scores from transrate to each contig
+          # and pick the best contig from each cluster
+
         end
       end
       p @crosses
+    end
+
+    def idba left, right
+      idba = IdbaTrans.new @threads
+      idba_contigs = idba.run left, right
+      return rename_contigs idba_contigs, "idba"
+    end
+
+    def soap left, right
+      soap = SoapDeNovo.new @threads
+      soap_contigs = soap.run left, right
+      return rename_contigs soap_contigs, "soap"
+    end
+
+    def rename_contigs file, name
+      output = "#{name}_contigs.fa"
+      File.open(output, "wb") do |out|
+        Bio::FastaFormat.open(file).each do |entry|
+          contig_name = entry.entry_id.gsub(/;$/, '')
+          contig_name = contig_name.gsub(/^_/, '')
+          out.write ">#{name}_#{contig_name}\n"
+          out.write "#{entry.seq}\n"
+        end
+      end
+      return output
+    end
+
+    def transrate list, left, right
+      scores = {}
+      list.each do |fasta|
+        puts "running transrate on #{fasta}"
+        cmd = "transrate "
+        cmd << " --assembly #{fasta}"
+        cmd << " --left #{left}"
+        cmd << " --right #{right}"
+        cmd << " --outfile out"
+        cmd << " --threads #{@threads}"
+        outfile = "out_#{File.basename(fasta)}_contigs.csv"
+        puts cmd
+        puts "loading #{outfile} and storing contig name and scores in hash"
+      end
+      return scores
     end
 
     def download info

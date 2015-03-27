@@ -1,6 +1,5 @@
 module MagicWildRice
 
-  require 'fileutils'
   require 'fixwhich'
 
   class IdbaTrans
@@ -64,7 +63,10 @@ module MagicWildRice
         }
       }
       lcs = "out" if lcs.length == 0
-      lcs = lcs[0..lcs.length-2] if lcs[lcs.length-1]=="_"
+      if lcs[lcs.length-1]=~/[\_\-]/
+        lcs = lcs[0..lcs.length-2]
+      end
+      return lcs
     end
 
   end

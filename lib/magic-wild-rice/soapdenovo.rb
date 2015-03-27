@@ -12,16 +12,21 @@ module MagicWildRice
     end
 
     def run left, right
-      @name = File.basename(lcs([left,right]))
+      lcs_name = lcs([left, right])
+      @name = "soap_#{File.basename(lcs_name)}"
+      path = "soap"
       config = make_config left, right
       soap = Cmd.new build_cmd config
-      output = File.expand_path("#{@name}.scafSeq")
-      unless File.exist?(output)
-        soap.run
-        unless soap.status.success?
-          puts "Something went wrong with soap"
-          puts soap.stderr
-          puts soap.stdout
+      output = File.expand_path(File.join(path, "#{@name}.scafSeq"))
+      FileUtils.mkdir_p(path)
+      Dir.chdir(path) do
+        unless File.exist?(output)
+          soap.run
+          unless soap.status.success?
+            puts "Something went wrong with soap"
+            puts soap.stderr
+            puts soap.stdout
+          end
         end
       end
       return output
@@ -43,9 +48,9 @@ module MagicWildRice
     def build_cmd config
       soap_cmd = "#{@soap} all "
       soap_cmd << "-s #{config} "             # config
-      soap_cmd << "-o #{File.basename(config, File.extname(config))} " # output
+      soap_cmd << "-o #{@name} "              # output
       soap_cmd << "-K 27 "
-      soap_cmd << "-p #{@threads} " # number of threads
+      soap_cmd << "-p #{@threads} "           # number of threads
       return soap_cmd
     end
 
@@ -59,7 +64,10 @@ module MagicWildRice
         }
       }
       lcs = "out" if lcs.length == 0
-      lcs = lcs[0..lcs.length-2] if lcs[lcs.length-1]=="_"
+      if lcs[lcs.length-1]=~/[\_\-]/
+        lcs = lcs[0..lcs.length-2]
+      end
+      return lcs
     end
 
   end
