@@ -11,9 +11,8 @@ module MagicWildRice
       raise "Can't find SOAPdenovo-Trans-127mer in path" if @soap.nil?
     end
 
-    def run left, right
-      lcs_name = lcs([left, right])
-      @name = "soap_#{File.basename(lcs_name)}"
+    def run name, left, right
+      @name = "soap_#{name}"
       path = "soap"
       config = make_config left, right
       soap = Cmd.new build_cmd config

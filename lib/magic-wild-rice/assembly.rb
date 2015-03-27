@@ -129,12 +129,13 @@ module MagicWildRice
         path = File.join("data", "assembly", "de_novo", name)
         FileUtils.mkdir_p(path)
         Dir.chdir(path) do
-          pre = Preprocessor::Preprocessor.new(name, false, @threads, @memory)
+          pre = Preprocessor::Preprocessor.new("preprocessing", false, @threads, @memory)
           contig_files = []
 
           pre.load_reads(left, right, name)
           pre.trimmomatic
           pre.hammer
+          pre.bbnorm
           left = pre.data[0][:current]
           right = pre.data[1][:current]
 
@@ -146,25 +147,25 @@ module MagicWildRice
           scores = transrate contig_files, left, right
           # cluster all contigs
           cluster = Cluster.new
-          cluster.run contig_files
+          cluster_output = cluster.run contig_files
+          puts "cluster output: #{cluster_output}"
           # assign scores from transrate to each contig
           # and pick the best contig from each cluster
 
         end
       end
-      p @crosses
     end
 
     def idba name, left, right
       idba = IdbaTrans.new @threads
-      idba_contigs = idba.run name, left, right
-      return rename_contigs idba_contigs, "idba"
+      idba_contigs = idba.run(name, left, right)
+      return File.expand_path(rename_contigs(idba_contigs, "idba"))
     end
 
     def soap name, left, right
       soap = SoapDeNovo.new @threads
-      soap_contigs = soap.run name, left, right
-      return rename_contigs soap_contigs, "soap"
+      soap_contigs = soap.run(name, left, right)
+      return File.expand_path(rename_contigs(soap_contigs, "soap"))
     end
 
     def rename_contigs file, name
@@ -182,17 +183,30 @@ module MagicWildRice
 
     def transrate list, left, right
       scores = {}
-      list.each do |fasta|
-        puts "running transrate on #{fasta}"
-        cmd = "transrate "
-        cmd << " --assembly #{fasta}"
-        cmd << " --left #{left}"
-        cmd << " --right #{right}"
-        cmd << " --outfile out"
-        cmd << " --threads #{@threads}"
-        outfile = "out_#{File.basename(fasta)}_contigs.csv"
-        puts cmd
-        puts "loading #{outfile} and storing contig name and scores in hash"
+      dir = "transrate"
+      gem_dir = Gem.loaded_specs['transrate'].full_gem_path
+      transrate = File.join(gem_dir, "bin", "transrate")
+      FileUtils.mkdir_p(dir)
+      Dir.chdir(dir) do
+        list.each do |fasta|
+          puts "running transrate on #{fasta}"
+          cmd = "#{transrate} "
+          cmd << " --assembly #{fasta}"
+          cmd << " --left #{left}"
+          cmd << " --right #{right}"
+          cmd << " --outfile transrate"
+          cmd << " --threads #{@threads}"
+          outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
+          puts cmd
+          transrate = Cmd.new cmd
+          transrate.run
+          puts "loading #{outfile} and storing contig name and scores in hash"
+          CSV.foreach(outfile, :headers => true,
+                                  :header_converters => :symbol,
+                                  :converters => :all) do |row|
+            p row
+          end
+        end
       end
       return scores
     end
@@ -210,7 +224,6 @@ module MagicWildRice
         end
       end
     end
-
   end
 
 end
