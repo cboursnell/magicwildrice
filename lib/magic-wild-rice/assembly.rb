@@ -145,6 +145,8 @@ module MagicWildRice
 
           # transrate all contigs individually
           scores = transrate contig_files, left, right
+          # filter out contigs with 0.01 score
+          contig_files = filter_contigs scores, contig_files
           # cluster all contigs
           cluster = Cluster.new
           cluster_output = cluster.run contig_files
@@ -166,6 +168,27 @@ module MagicWildRice
       soap = SoapDeNovo.new @threads
       soap_contigs = soap.run(name, left, right)
       return File.expand_path(rename_contigs(soap_contigs, "soap"))
+    end
+
+    def filter_contigs scores, contig_files
+      new_files = []
+      contig_files.each do |file|
+        str = ""
+        Bio::FastaFormat.open(file).each do |entry|
+          name = entry.entry_id
+          if scores.key?(name)
+            if scores[name] > 0.01
+              str << ">#{name}\n"
+              str << "#{entry.seq}\n"
+            end
+          end
+        end
+        new_filename = "#{File.basename(file, File.extname(file))}_filtered.fa"
+        new_filename = File.expand_path(new_filename)
+        File.open("#{new_filename}", "wb") { |out| out.write(str)}
+        new_files << new_filename
+      end
+      return new_files
     end
 
     def rename_contigs file, name
@@ -197,14 +220,18 @@ module MagicWildRice
           cmd << " --outfile transrate"
           cmd << " --threads #{@threads}"
           outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
-          puts cmd
-          transrate = Cmd.new cmd
-          transrate.run
+          puts "running transrate:\n"
+          p cmd
+          puts "\n"
+          transrater = Cmd.new(cmd)
+          transrater.run
           puts "loading #{outfile} and storing contig name and scores in hash"
           CSV.foreach(outfile, :headers => true,
-                                  :header_converters => :symbol,
-                                  :converters => :all) do |row|
-            p row
+                               :header_converters => :symbol,
+                               :converters => :all) do |row|
+            name = row[:config_name]
+            score = row[:score]
+            scores[name] = score
           end
         end
       end
