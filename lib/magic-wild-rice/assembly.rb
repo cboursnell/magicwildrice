@@ -133,8 +133,11 @@ module MagicWildRice
           contig_files = []
 
           pre.load_reads(left, right, name)
+          puts "trimming..."
           pre.trimmomatic
+          puts "hammering..."
           pre.hammer
+          puts "norming..."
           pre.bbnorm
           left = pre.data[0][:current]
           right = pre.data[1][:current]
@@ -149,23 +152,22 @@ module MagicWildRice
           contig_files = filter_contigs scores, contig_files
           # cluster all contigs
           cluster = Cluster.new
-          cluster_output = cluster.run(name, contig_files)
-          puts "cluster output: #{cluster_output}"
-          # assign scores from transrate to each contig
-          # and pick the best contig from each cluster
-
+          output = cluster.run(name, contig_files, scores)
+          puts "best contigs saved in #{output}\n"
         end
       end
     end
 
     def idba name, left, right
       idba = IdbaTrans.new @threads
+      puts "idba..."
       idba_contigs = idba.run(name, left, right)
       return File.expand_path(rename_contigs(idba_contigs, "idba"))
     end
 
     def soap name, left, right
       soap = SoapDeNovo.new @threads
+      puts "soap..."
       soap_contigs = soap.run(name, left, right)
       return File.expand_path(rename_contigs(soap_contigs, "soap"))
     end
@@ -173,19 +175,26 @@ module MagicWildRice
     def filter_contigs scores, contig_files
       new_files = []
       contig_files.each do |file|
-        str = ""
-        Bio::FastaFormat.open(file).each do |entry|
-          name = entry.entry_id
-          if scores.key?(name)
-            if scores[name] > 0.01
-              str << ">#{name}\n"
-              str << "#{entry.seq}\n"
-            end
-          end
-        end
+        puts "filtering on #{file}..."
         new_filename = "#{File.basename(file, File.extname(file))}_filtered.fa"
         new_filename = File.expand_path(new_filename)
-        File.open("#{new_filename}", "wb") { |out| out.write(str)}
+        unless File.exist?(new_filename)
+          str = ""
+          Bio::FastaFormat.open(file).each do |entry|
+            name = entry.entry_id
+            if scores.key?(name)
+              if scores[name] > 0.01
+                str << ">#{name}\n"
+                str << "#{entry.seq}\n"
+              end
+            else
+              puts "can't find #{name} in scores hash"
+            end
+          end
+
+          puts "writing new filtered fasta file #{new_filename}"
+          File.open("#{new_filename}", "wb") { |out| out.write(str)}
+        end
         new_files << new_filename
       end
       return new_files
@@ -212,7 +221,7 @@ module MagicWildRice
       FileUtils.mkdir_p(dir)
       Dir.chdir(dir) do
         list.each do |fasta|
-          puts "running transrate on #{fasta}"
+          puts "transrate on #{File.basename(fasta)}..."
           cmd = "#{transrate} "
           cmd << " --assembly #{fasta}"
           cmd << " --left #{left}"
@@ -221,14 +230,17 @@ module MagicWildRice
           cmd << " --threads #{@threads}"
           outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
           transrater = Cmd.new(cmd)
-          puts "running transrate..."
           unless File.exist?(outfile)
             transrater.run
+            File.open("#{File.basename(fasta)}.log","wb") do |out|
+              out.write transrater.stdout
+            end
           end
+          count = 0
           CSV.foreach(outfile, :headers => true,
                                :header_converters => :symbol,
                                :converters => :all) do |row|
-            name = row[:config_name]
+            name = row[:contig_name]
             score = row[:score]
             scores[name] = score
           end
