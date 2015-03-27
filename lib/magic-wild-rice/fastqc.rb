@@ -21,8 +21,8 @@ module MagicWildRice
       @quality_file = "per_base_quality.txt"
       @quality_tile_file = "per_base_quality_tile.txt"
       @mean_quality_file = "read_mean_quality.txt"
-      @read_count_file = "read_length_hist.txt"
-      @read_length_file = "read_count.txt"
+      @read_length_file = "read_length_hist.txt"
+      @read_count_file = "read_count.txt"
       @dibase_file = "dibase_bias.txt"
     end
 
