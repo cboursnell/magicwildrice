@@ -138,8 +138,8 @@ module MagicWildRice
           left = pre.data[0][:current]
           right = pre.data[1][:current]
 
-          contig_files << idba left, right
-          contig_files << soap left, right
+          contig_files << idba(name, left, right)
+          contig_files << soap(name, left, right)
           # add more assembly methods here
 
           # transrate all contigs individually
@@ -155,15 +155,15 @@ module MagicWildRice
       p @crosses
     end
 
-    def idba left, right
+    def idba name, left, right
       idba = IdbaTrans.new @threads
-      idba_contigs = idba.run left, right
+      idba_contigs = idba.run name, left, right
       return rename_contigs idba_contigs, "idba"
     end
 
-    def soap left, right
+    def soap name, left, right
       soap = SoapDeNovo.new @threads
-      soap_contigs = soap.run left, right
+      soap_contigs = soap.run name, left, right
       return rename_contigs soap_contigs, "soap"
     end
 

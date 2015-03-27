@@ -12,9 +12,9 @@ module MagicWildRice
       raise "Can't find fq2fa in path" if @fq2fa.nil?
     end
 
-    def run left, right
-      reads = prepare_reads left, right
-      @output = File.basename(reads, File.extname(reads))
+    def run name, left, right
+      reads = prepare_reads name, left, right
+      @output = "idba"
       idba = Cmd.new build_cmd(reads)
       output = File.expand_path("#{@output}/contig.fa")
       unless File.exist?(output)
@@ -43,8 +43,8 @@ module MagicWildRice
       return idba_cmd
     end
 
-    def prepare_reads left, right
-      output = File.basename("#{lcs [left, right]}.fa")
+    def prepare_reads name, left, right
+      output = File.basename("#{name}_reads.fa")
       unless File.exist?(output)
         cmd = "#{@fq2fa} --merge #{left} #{right} #{output}"
         merge = Cmd.new cmd
