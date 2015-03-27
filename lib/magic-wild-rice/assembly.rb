@@ -149,7 +149,7 @@ module MagicWildRice
           contig_files = filter_contigs scores, contig_files
           # cluster all contigs
           cluster = Cluster.new
-          cluster_output = cluster.run contig_files
+          cluster_output = cluster.run(name, contig_files)
           puts "cluster output: #{cluster_output}"
           # assign scores from transrate to each contig
           # and pick the best contig from each cluster
@@ -220,12 +220,11 @@ module MagicWildRice
           cmd << " --outfile transrate"
           cmd << " --threads #{@threads}"
           outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
-          puts "running transrate:\n"
-          p cmd
-          puts "\n"
           transrater = Cmd.new(cmd)
-          transrater.run
-          puts "loading #{outfile} and storing contig name and scores in hash"
+          puts "running transrate..."
+          unless File.exist?(outfile)
+            transrater.run
+          end
           CSV.foreach(outfile, :headers => true,
                                :header_converters => :symbol,
                                :converters => :all) do |row|
