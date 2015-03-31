@@ -46,6 +46,24 @@ Rake::TestTask.new do |t|
   t.test_files = ['test/test_soap.rb']
 end
 
+Rake::TestTask.new do |t|
+  t.name = :oases
+  t.libs << 'test'
+  t.test_files = ['test/test_oases.rb']
+end
+
+Rake::TestTask.new do |t|
+  t.name = :trinity
+  t.libs << 'test'
+  t.test_files = ['test/test_trinity.rb']
+end
+
+Rake::TestTask.new do |t|
+  t.name = :sga
+  t.libs << 'test'
+  t.test_files = ['test/test_sga.rb']
+end
+
 
 desc "Run tests"
 task :default => :test

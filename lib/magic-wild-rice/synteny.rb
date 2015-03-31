@@ -13,13 +13,13 @@ module MagicWildRice
     end
 
     def run list, threads=8
-      # assemble using reference genome
+      # assemble parents using reference genome
       list.each do |info|
-        download info
-        fasta = tophat info
+        download(info)
+        fasta = tophat(info)
         info["transcriptome"] = fasta
         puts "loading gtf of #{info["desc"]}"
-        load_gtf info
+        load_gtf(info)
       end
       # do pairwise crb-blast
       (0..list.length-2).each do |i|
@@ -149,7 +149,6 @@ module MagicWildRice
               @annotation.delete(namedesc)
             end
           end
-
         end
       end
     end

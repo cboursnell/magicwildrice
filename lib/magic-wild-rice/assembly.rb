@@ -45,7 +45,7 @@ module MagicWildRice
       @crosses.each do |info|
         desc = info["desc"]
         cat = {}
-        puts "cross: #{desc}"
+
         desc.split("/").each do |p|
           @parents.each do |i|
             if i["desc"] =~ /#{p}/
@@ -55,8 +55,10 @@ module MagicWildRice
         end
         cat.each do |name, fa|
           fixed_genome = "#{File.basename(name, File.extname(name))}_fixed.fa"
-          fixed_genome = File.expand_path(File.join("data", "assembly", fixed_genome))
+          fixed_genome = File.expand_path(File.join("data", "assembly",
+                                                    "reference", fixed_genome))
           unless File.exist?(fixed_genome)
+            # add species name to fasta file before concatenating
             puts fixed_genome
             path = File.expand_path(File.join("data", "genomes", name, fa))
             output = ""
@@ -67,31 +69,28 @@ module MagicWildRice
               output << ">#{contig}\n"
               output << "#{entry.seq}\n"
             end
+            FileUtils.mkdir_p(File.dirname(fixed_genome))
             File.open(fixed_genome, "wb") {|out| out.write output}
           end
           cat[name] = fixed_genome
         end
-        # add species name to fasta file before concatenating
 
         cat_name = []
         cmd = "cat " + cat.keys.reduce("") do |sum, name|
           cat_name << name
-          path = cat[name]
-          sum << " #{path} "
+          sum << " #{cat[name]} "
         end
         genome = "#{cat_name.join("-")}.fa"
-        genome = File.expand_path(File.join("data", "assembly", genome))
+        genome = File.expand_path(File.join("data", "assembly",
+                                            "reference", genome))
         cmd << " > #{genome}"
         puts cmd
-        path = File.expand_path(File.join('data', 'assembly'))
-        FileUtils.mkdir_p(path)
+        path = File.expand_path(File.join("data", "assembly", "reference"))
         Dir.chdir(path) do
           catter = Cmd.new cmd
           result = catter.run genome
-          info["genome"] = File.expand_path(genome)
-          p info
-          puts result
-          tophat info
+          info["genome"] = genome # File.expand_path(genome)
+          tophat(info) # run tophat assembly
         end
       end
     end
@@ -118,7 +117,7 @@ module MagicWildRice
       # merge outputs
       # transrate and choose highest scoring contig from each 'cluster'
       # don't use transrate automatic cutoff
-      @memory = 90
+      @memory = 128
       #
       @crosses.each do |info|
         left = info["files"][0]
@@ -144,6 +143,9 @@ module MagicWildRice
 
           contig_files << idba(name, left, right)
           contig_files << soap(name, left, right)
+          contig_files << oases(name, left, right)
+          contig_files << trinity(name, left, right)
+          contig_files << sga(name, left, right)
           # add more assembly methods here
 
           # transrate all contigs individually
@@ -170,6 +172,27 @@ module MagicWildRice
       puts "soap..."
       soap_contigs = soap.run(name, left, right)
       return File.expand_path(rename_contigs(soap_contigs, "soap"))
+    end
+
+    def oases name, left, right
+      oases = Oases.new @threads
+      puts "oases..."
+      oases_contigs = oases.run(name, left, right)
+      return File.expand_path(rename_contigs(oases_contigs, "oases"))
+    end
+
+    def trinity name, left, right
+      trinity = Trinity.new @threads
+      puts "trinity..."
+      trinity_contigs = trinity.run(name, left, right)
+      return File.expand_path(rename_contigs(trinity_contigs, "trinity"))
+    end
+
+    def sga name, left, right
+      sga = Sga.new @threads
+      puts "sga..."
+      sga_contigs = sga.run(name, left, right)
+      return File.expand_path(rename_contigs(sga_contigs, "sga"))
     end
 
     def filter_contigs scores, contig_files
