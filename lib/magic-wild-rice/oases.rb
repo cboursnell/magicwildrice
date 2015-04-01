@@ -12,9 +12,11 @@ module MagicWildRice
       @oases = Which::which('oases').first
       found = true
       @output = "oases"
-      [@velvetg, @velveth, @oases].each do |bin|
+      {"velvetg" => @velvetg,
+       "velveth" => @velveth,
+       "oases" => @oases}.each do |name, bin|
         if bin.nil?
-          puts "Can't find #{bin} in path"
+          puts "Can't find #{name} in path"
           found = false
         end
       end
@@ -22,12 +24,12 @@ module MagicWildRice
     end
 
     def run name, left, right
-      create_hash(name, left, right) # velveth
+      create_hash(left, right) # velveth
       create_graph # velvetg
       return oases    # oases
     end
 
-    def create_hash(output, left, right)
+    def create_hash(left, right)
       cmd = "#{@velveth}"
       cmd << " #{@output}"
       cmd << " #{@kmer_size}"
@@ -43,7 +45,7 @@ module MagicWildRice
       end
     end
 
-    def create_graph output
+    def create_graph
       cmd = "#{@velvetg}"
       cmd << " #{@output}"
       cmd << " -cov_cutoff auto "
@@ -60,7 +62,7 @@ module MagicWildRice
       end
     end
 
-    def oases output
+    def oases
       cmd = "#{@oases}"
       cmd << " #{@output}"
       assemble = Cmd.new cmd
