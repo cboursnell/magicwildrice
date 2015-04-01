@@ -51,30 +51,24 @@ module MagicWildRice
       cmd << " -t #{@threads}"
       cmd << " -p #{name}"
       cmd << " #{name}.fastq"
-      puts cmd
       index = Cmd.new cmd
       index.run
-      puts index.stdout
-      puts index.stderr
       return "#{name}.bwt"
     end
 
     def filter name, left, right
       output = "#{name}.filter.pass.fa"
-      cmd = "#{@sga} filter "
+      cmd = "#{@sga} filter"
       cmd << " -t #{@threads}"
       cmd << " -p #{name}"
       cmd << " -o #{output}"
       cmd << " --kmer-threshold 3"
-      cmd << " --kmer-size 27 "
+      cmd << " --kmer-size 27"
       cmd << " --homopolymer-check"
       cmd << " --low-complexity-check"
       cmd << " #{name}.fastq"
-      puts cmd
       filter = Cmd.new cmd
       filter.run
-      puts filter.stdout
-      puts filter.stderr
       return output
     end
 
@@ -82,15 +76,12 @@ module MagicWildRice
       output = "#{name}.merged.fa"
       cmd = "#{@sga} fm-merge "
       # cmd << " --min-overlap #{opts.merge_overlap} " if opts.merge_overlap
-      cmd << " --threads #{@threads} "
-      cmd << " --prefix #{name}.filter.pass "
-      cmd << " --outfile #{output} "
+      cmd << " --threads #{@threads}"
+      cmd << " --prefix #{name}.filter.pass"
+      cmd << " --outfile #{output}"
       cmd << "#{name}.filter.pass.fa"
-      puts cmd
       merge = Cmd.new cmd
       merge.run
-      puts merge.stdout
-      puts merge.stderr
       return output
     end
 
@@ -100,11 +91,8 @@ module MagicWildRice
       cmd << " -t #{@threads}"
       cmd << " -p #{name}.merged"
       cmd << " #{name}.merged.fa"
-      puts cmd
       index = Cmd.new cmd
       index.run
-      puts index.stdout
-      puts index.stderr
       return "#{name}.filter.pass.bwt"
     end
 
@@ -112,23 +100,17 @@ module MagicWildRice
       cmd = "#{@sga} overlap"
       cmd << " --threads #{@threads}"
       cmd << " #{name}.merged.fa"
-      puts cmd
       over = Cmd.new cmd
       over.run
-      puts over.stdout
-      puts over.stderr
       return "something"
     end
 
     def assemble name, left, right
       cmd = "#{@sga} assemble"
-      cmd << " -o #{name}.assemble "
+      cmd << " -o #{name}.assemble"
       cmd << " #{name}.merged.asqg.gz"
-      puts cmd
       a = Cmd.new cmd
       a.run
-      puts a.stdout
-      puts a.stderr
       return "#{name}.assemble-contigs.fa"
     end
 
