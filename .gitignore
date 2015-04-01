@@ -40,6 +40,7 @@ dryrun
 *.bam
 *.csv
 *.coverage
+*.fq
 
 # c extension build artefacts
 Makefile

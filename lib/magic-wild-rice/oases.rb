@@ -11,6 +11,7 @@ module MagicWildRice
       @velveth = Which::which('velveth').first
       @oases = Which::which('oases').first
       found = true
+      @output = "oases"
       [@velvetg, @velveth, @oases].each do |bin|
         if bin.nil?
           puts "Can't find #{bin} in path"
@@ -28,7 +29,7 @@ module MagicWildRice
 
     def create_hash(output, left, right)
       cmd = "#{@velveth}"
-      cmd << " #{output}"
+      cmd << " #{@output}"
       cmd << " #{@kmer_size}"
       cmd << " -fastq -separate -shortPaired" # read description
       cmd << " #{left}"
@@ -44,7 +45,7 @@ module MagicWildRice
 
     def create_graph output
       cmd = "#{@velvetg}"
-      cmd << " #{output}"
+      cmd << " #{@output}"
       cmd << " -cov_cutoff auto "
       cmd << " -ins_length 150"
       cmd << " -read_trkg yes"
@@ -61,7 +62,7 @@ module MagicWildRice
 
     def oases output
       cmd = "#{@oases}"
-      cmd << " #{output}"
+      cmd << " #{@output}"
       assemble = Cmd.new cmd
       assemble.run
       unless assemble.status.success?
@@ -69,7 +70,7 @@ module MagicWildRice
         msg << "#{assemble.stdout}\n"
         msg << "#{assemble.stderr}\n"
       end
-      return File.join("#{output}", "transcripts.fa")
+      return File.join("#{@output}", "transcripts.fa")
     end
 
   end

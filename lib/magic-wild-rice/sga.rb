@@ -9,9 +9,22 @@ module MagicWildRice
       @threads = threads
       @sga = Which::which('sga').first
       # raise "Can't find sga in path" if @sga.nil?
+      @output = "sga"
     end
 
     def run name, left, right
+      FileUtils.mkdir_p(@output)
+      contigs = File.join(@output, "#{name}.assemble-contigs.fa")
+      Dir.chdir(@output) do
+        preprocess name, left, right
+        index1 name, left, right
+        filter name, left, right
+        fmmerge name, left, right
+        index2 name, left, right
+        overlap name, left, right
+        assemble name, left, right
+      end
+      return contigs
     end
 
     def preprocess name, left, right
