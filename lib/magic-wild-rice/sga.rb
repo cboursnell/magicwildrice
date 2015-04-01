@@ -15,14 +15,16 @@ module MagicWildRice
     def run name, left, right
       FileUtils.mkdir_p(@output)
       contigs = File.join(@output, "#{name}.assemble-contigs.fa")
-      Dir.chdir(@output) do
-        preprocess name, left, right
-        index1 name, left, right
-        filter name, left, right
-        fmmerge name, left, right
-        index2 name, left, right
-        overlap name, left, right
-        assemble name, left, right
+      unless File.exist?(contigs)
+        Dir.chdir(@output) do
+          preprocess name, left, right
+          index1 name, left, right
+          filter name, left, right
+          fmmerge name, left, right
+          index2 name, left, right
+          overlap name, left, right
+          assemble name, left, right
+        end
       end
       return contigs
     end

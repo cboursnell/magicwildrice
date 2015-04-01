@@ -13,18 +13,11 @@ module MagicWildRice
 
     def run name, left, right
       trinity = Cmd.new build_cmd name, left, right
-      trinity.run
-      @stdout = trinity.stdout
-      @stderr = trinity.stderr
-      if trinity.status.success?
-        puts "success!"
-      else
-        puts "fail"
-        puts @stdout
-        puts @stderr
-        abort
+      output = File.join("trinity", "Trinity.fasta")
+      unless File.exist?(output)
+        trinity.run
       end
-      return "trinity_#{name}/Trinity.fasta"
+      return output
     end
 
     def build_cmd name, left, right
@@ -40,7 +33,7 @@ module MagicWildRice
       cmd << " --min_contig_length 200"
       cmd << " --bypass_java_version_check"
       cmd << " --no_version_check"
-      cmd << " --output trinity_#{name}"
+      cmd << " --output trinity"
     end
 
   end

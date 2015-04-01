@@ -24,9 +24,13 @@ module MagicWildRice
     end
 
     def run name, left, right
-      create_hash(left, right) # velveth
-      create_graph # velvetg
-      return oases    # oases
+      output = File.join("#{@output}", "transcripts.fa")
+      unless File.exist?(output)
+        create_hash(left, right) # velveth
+        create_graph             # velvetg
+        oases                    # oases
+      end
+      return output
     end
 
     def create_hash(left, right)
