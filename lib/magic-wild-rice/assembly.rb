@@ -226,12 +226,14 @@ module MagicWildRice
 
     def rename_contigs file, name
       output = "#{name}_contigs.fa"
-      count = 0
-      File.open(output, "wb") do |out|
-        Bio::FastaFormat.open(file).each do |entry|
-          out.write ">#{name}_contig#{count}\n"
-          out.write "#{entry.seq}\n"
-          count += 1
+      unless File.exist?(output)
+        count = 0
+        File.open(output, "wb") do |out|
+          Bio::FastaFormat.open(file).each do |entry|
+            out.write ">#{name}_contig#{count}\n"
+            out.write "#{entry.seq}\n"
+            count += 1
+          end
         end
       end
       return output
