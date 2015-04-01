@@ -9,6 +9,7 @@ module MagicWildRice
     # do genome based and de novo assembly of crosses
 
     def initialize details
+      @all = details
       @parents = []
       @crosses = []
 
@@ -119,7 +120,7 @@ module MagicWildRice
       # don't use transrate automatic cutoff
       @memory = 128
       #
-      @crosses.each do |info|
+      @all.each do |info|
         left = info["files"][0]
         right = info["files"][1]
         name = info["desc"].tr("/", "_").downcase
@@ -225,12 +226,12 @@ module MagicWildRice
 
     def rename_contigs file, name
       output = "#{name}_contigs.fa"
+      count = 0
       File.open(output, "wb") do |out|
         Bio::FastaFormat.open(file).each do |entry|
-          contig_name = entry.entry_id.gsub(/;$/, '')
-          contig_name = contig_name.gsub(/^_/, '')
-          out.write ">#{name}_#{contig_name}\n"
+          out.write ">#{name}_contig#{count}\n"
           out.write "#{entry.seq}\n"
+          count += 1
         end
       end
       return output
