@@ -28,6 +28,7 @@ module MagicWildRice
           end
         end
       end
+      File.delete(config)
       return output
     end
 

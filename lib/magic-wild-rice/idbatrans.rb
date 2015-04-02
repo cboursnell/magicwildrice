@@ -23,6 +23,8 @@ module MagicWildRice
           puts "Something went wrong with idba"
           puts idba.stderr
           puts idba.stdout
+        else
+          File.delete(reads) if File.exist?(reads)
         end
       end
       return output

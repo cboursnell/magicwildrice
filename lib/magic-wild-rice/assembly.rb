@@ -247,28 +247,33 @@ module MagicWildRice
       FileUtils.mkdir_p(dir)
       Dir.chdir(dir) do
         list.each do |fasta|
-          puts "transrate on #{File.basename(fasta)}..."
-          cmd = "#{transrate} "
-          cmd << " --assembly #{fasta}"
-          cmd << " --left #{left}"
-          cmd << " --right #{right}"
-          cmd << " --outfile transrate"
-          cmd << " --threads #{@threads}"
-          outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
-          transrater = Cmd.new(cmd)
-          unless File.exist?(outfile)
-            transrater.run
-            File.open("#{File.basename(fasta)}.log","wb") do |out|
-              out.write transrater.stdout
+          name = File.basename(fasta, File.extname(fasta))
+          FileUtils.mkdir_p(name)
+          Dir.chdir(name) do
+            puts "transrate on #{File.basename(fasta)}..."
+            cmd = "#{transrate} "
+            cmd << " --assembly #{fasta}"
+            cmd << " --left #{left}"
+            cmd << " --right #{right}"
+            cmd << " --outfile transrate"
+            cmd << " --threads #{@threads}"
+            outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
+            puts cmd
+            transrater = Cmd.new(cmd)
+            unless File.exist?(outfile)
+              transrater.run
+              File.open("#{File.basename(fasta)}.log","wb") do |out|
+                out.write transrater.stdout
+              end
             end
-          end
-          count = 0
-          CSV.foreach(outfile, :headers => true,
-                               :header_converters => :symbol,
-                               :converters => :all) do |row|
-            name = row[:contig_name]
-            score = row[:score]
-            scores[name] = score
+            count = 0
+            CSV.foreach(outfile, :headers => true,
+                                 :header_converters => :symbol,
+                                 :converters => :all) do |row|
+              name = row[:contig_name]
+              score = row[:score]
+              scores[name] = score
+            end
           end
         end
       end
