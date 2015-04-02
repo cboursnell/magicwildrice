@@ -43,7 +43,7 @@ module MagicWildRice
     end
 
     def build_index file, threads=8
-      @index_name = File.basename(file, File.extname(file))
+      @index_name = "#{File.basename(file, File.extname(file))}_index"
       unless Dir.exists?(@index_name)
         cmd = "#{@snap} index #{file} #{@index_name}"
         cmd << " -s 23"

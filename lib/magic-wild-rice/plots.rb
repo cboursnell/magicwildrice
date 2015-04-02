@@ -44,6 +44,13 @@ module MagicWildRice
       rscript.run
     end
 
+    def transrate_scores
+      script = File.join(@rpath, "transrate_scores.R")
+      rscript = Cmd.new("Rscript #{script} -p #{@dir}")
+      rscript.run
+    end
+
+
   end
 
 end

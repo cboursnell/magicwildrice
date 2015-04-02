@@ -50,7 +50,8 @@ module MagicWildRice
         desc.split("/").each do |p|
           @parents.each do |i|
             if i["desc"] =~ /#{p}/
-              cat[i["desc"].tr(" ", "_").downcase] = i["genome"]["fa"]
+              name = i["desc"].gsub(/[\/\ ]/, "_").downcase
+              cat[name] = i["genome"]["fa"]
             end
           end
         end
@@ -99,7 +100,7 @@ module MagicWildRice
     def tophat info
       left = info["files"][0]
       right = info["files"][1]
-      name = info["desc"].tr("/", "_").downcase
+      name = info["desc"].gsub(/[\/\ ]/, "_").downcase
       reference = info["genome"]
       path = name
       puts "path :  #{path}"
@@ -123,7 +124,7 @@ module MagicWildRice
       @all.each do |info|
         left = info["files"][0]
         right = info["files"][1]
-        name = info["desc"].tr("/", "_").downcase
+        name = info["desc"].gsub(/[\/\ ]/, "_").downcase
         puts "name  : #{name}"
         # soap = Soap.new
         path = File.join("data", "assembly", "de_novo", name)
@@ -151,6 +152,8 @@ module MagicWildRice
 
           # transrate all contigs individually
           scores = transrate contig_files, left, right
+          p = Plot.new File.join(path, "transrate")
+          p.transrate_scores
           # filter out contigs with 0.01 score
           contig_files = filter_contigs scores, contig_files
           # cluster all contigs
@@ -215,8 +218,6 @@ module MagicWildRice
               puts "can't find #{name} in scores hash"
             end
           end
-
-          puts "writing new filtered fasta file #{new_filename}"
           File.open("#{new_filename}", "wb") { |out| out.write(str)}
         end
         new_files << new_filename
@@ -282,7 +283,7 @@ module MagicWildRice
 
     def download info
       # download genomes
-      name = info["desc"].tr(" ", "_").downcase
+      name = info["desc"].gsub(/[\/\ ]/, "_").downcase
       path = File.join("data", "genomes", name)
       FileUtils.mkdir_p(path)
       Dir.chdir(path) do |dir|
