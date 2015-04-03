@@ -131,7 +131,7 @@ module MagicWildRice
       fastq.close
       min, max = n.keys.minmax
       phred = -1
-      if max <= 105 and min >= 66
+      if max <= 105 and min >= 64
         phred = 64
       elsif max <= 74 and min >= 33
         phred = 33
