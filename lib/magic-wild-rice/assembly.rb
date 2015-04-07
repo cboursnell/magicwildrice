@@ -9,6 +9,7 @@ module MagicWildRice
     # do genome based and de novo assembly of crosses
 
     def initialize details
+      @cutoff = 0.1
       @all = details
       @parents = []
       @crosses = []
@@ -27,11 +28,13 @@ module MagicWildRice
       @threads = threads
       reference_based
       de_novo
+      find_homologs
     end
 
     def run_de_novo threads
       @threads = threads
       de_novo
+      find_homologs
     end
 
     def run_reference threads
@@ -160,6 +163,7 @@ module MagicWildRice
           cluster = Cluster.new
           output = cluster.run(name, contig_files, scores)
           puts "best contigs saved in #{output}\n"
+          info["transcriptome"] = File.expand_path(output)
         end
       end
     end
@@ -210,7 +214,7 @@ module MagicWildRice
           Bio::FastaFormat.open(file).each do |entry|
             name = entry.entry_id
             if scores.key?(name)
-              if scores[name] > 0.01
+              if scores[name] > @cutoff
                 str << ">#{name}\n"
                 str << "#{entry.seq}\n"
               end
@@ -279,6 +283,11 @@ module MagicWildRice
         end
       end
       return scores
+    end
+
+    def find_homologs
+      # check synteny output to see if parents have been assembled using tophat
+
     end
 
     def download info
