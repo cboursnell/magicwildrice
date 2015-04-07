@@ -42,6 +42,12 @@ module MagicWildRice
       cmd << " #{right}"
       prep = Cmd.new cmd
       prep.run
+      unless prep.status.success?
+        puts cmd
+        puts prep.stdout
+        puts prep.stderr
+        abort "Something went wrong with sga preprocess"
+      end
       return "#{name}.fastq"
     end
 
@@ -53,6 +59,12 @@ module MagicWildRice
       cmd << " #{name}.fastq"
       index = Cmd.new cmd
       index.run
+      unless index.status.success?
+        puts cmd
+        puts index.stdout
+        puts index.stderr
+        abort "Something went wrong with sga index1"
+      end
       return "#{name}.bwt"
     end
 
@@ -69,6 +81,12 @@ module MagicWildRice
       cmd << " #{name}.fastq"
       filter = Cmd.new cmd
       filter.run
+      unless filter.status.success?
+        puts cmd
+        puts filter.stdout
+        puts filter.stderr
+        abort "Something went wrong with sga filter"
+      end
       return output
     end
 
@@ -79,9 +97,15 @@ module MagicWildRice
       cmd << " --threads #{@threads}"
       cmd << " --prefix #{name}.filter.pass"
       cmd << " --outfile #{output}"
-      cmd << "#{name}.filter.pass.fa"
+      cmd << " #{name}.filter.pass.fa"
       merge = Cmd.new cmd
       merge.run
+      unless merge.status.success?
+        puts cmd
+        puts merge.stdout
+        puts merge.stderr
+        abort "Something went wrong with sga fm-merge"
+      end
       return output
     end
 
@@ -93,6 +117,12 @@ module MagicWildRice
       cmd << " #{name}.merged.fa"
       index = Cmd.new cmd
       index.run
+      unless index.status.success?
+        puts cmd
+        puts index.stdout
+        puts index.stderr
+        abort "Something went wrong with sga index2"
+      end
       return "#{name}.filter.pass.bwt"
     end
 
@@ -102,6 +132,12 @@ module MagicWildRice
       cmd << " #{name}.merged.fa"
       over = Cmd.new cmd
       over.run
+      unless over.status.success?
+        puts cmd
+        puts over.stdout
+        puts over.stderr
+        abort "Something went wrong with sga overlap"
+      end
       return "something"
     end
 
@@ -111,6 +147,12 @@ module MagicWildRice
       cmd << " #{name}.merged.asqg.gz"
       a = Cmd.new cmd
       a.run
+      unless a.status.success?
+        puts cmd
+        puts a.stdout
+        puts a.stderr
+        abort "Something went wrong with sga assemble"
+      end
       return "#{name}.assemble-contigs.fa"
     end
 
@@ -131,10 +173,12 @@ module MagicWildRice
       fastq.close
       min, max = n.keys.minmax
       phred = -1
-      if max <= 105 and min >= 66
+      if max <= 105 and min >= 64
         phred = 64
       elsif max <= 74 and min >= 33
         phred = 33
+      else
+        abort "Couldn't determine phred value"
       end
       return phred
     end
