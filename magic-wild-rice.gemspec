@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'threach', '~> 0.2', '>= 0.2.0'
   gem.add_dependency 'bindeps', '~> 1.0', '>= 1.1.2'
   gem.add_dependency 'crb-blast', '~> 0.5', '>= 0.5.1'
-  gem.add_dependency 'preprocessor', '~> 0.6', '0.6.2'
+  gem.add_dependency 'preprocessor', '~> 0.6', '0.6.3'
   gem.add_dependency 'transrate', '1.0.0.beta3'
 
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'

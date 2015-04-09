@@ -140,9 +140,10 @@ module MagicWildRice
           puts "trimming..."
           pre.trimmomatic
           puts "hammering..."
-          pre.hammer
+          pre.hammer_batch
           puts "norming..."
           pre.bbnorm
+          # run assembly with just normalised reads
           left = pre.data[0][:current]
           right = pre.data[1][:current]
 
@@ -151,8 +152,10 @@ module MagicWildRice
           contig_files << oases(name, left, right)
           contig_files << trinity(name, left, right)
           contig_files << sga(name, left, right)
-          # add more assembly methods here
 
+          # run transrate with all reads
+          left = pre.data[0][:prenorm]
+          right = pre.data[1][:prenorm]
           # transrate all contigs individually
           scores = transrate contig_files, left, right
           p = Plot.new File.join(path, "transrate")
