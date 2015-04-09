@@ -9,6 +9,7 @@ module MagicWildRice
     # do genome based and de novo assembly of crosses
 
     def initialize details
+      @cutoff = 0.1
       @all = details
       @parents = []
       @crosses = []
@@ -27,11 +28,13 @@ module MagicWildRice
       @threads = threads
       reference_based
       de_novo
+      find_homologs
     end
 
     def run_de_novo threads
       @threads = threads
       de_novo
+      find_homologs
     end
 
     def run_reference threads
@@ -50,7 +53,8 @@ module MagicWildRice
         desc.split("/").each do |p|
           @parents.each do |i|
             if i["desc"] =~ /#{p}/
-              cat[i["desc"].tr(" ", "_").downcase] = i["genome"]["fa"]
+              name = i["desc"].gsub(/[\/\ ]/, "_").downcase
+              cat[name] = i["genome"]["fa"]
             end
           end
         end
@@ -99,7 +103,7 @@ module MagicWildRice
     def tophat info
       left = info["files"][0]
       right = info["files"][1]
-      name = info["desc"].tr("/", "_").downcase
+      name = info["desc"].gsub(/[\/\ ]/, "_").downcase
       reference = info["genome"]
       path = name
       puts "path :  #{path}"
@@ -123,7 +127,7 @@ module MagicWildRice
       @all.each do |info|
         left = info["files"][0]
         right = info["files"][1]
-        name = info["desc"].tr("/", "_").downcase
+        name = info["desc"].gsub(/[\/\ ]/, "_").downcase
         puts "name  : #{name}"
         # soap = Soap.new
         path = File.join("data", "assembly", "de_novo", name)
@@ -136,9 +140,10 @@ module MagicWildRice
           puts "trimming..."
           pre.trimmomatic
           puts "hammering..."
-          pre.hammer
+          pre.hammer_batch
           puts "norming..."
           pre.bbnorm
+          # run assembly with just normalised reads
           left = pre.data[0][:current]
           right = pre.data[1][:current]
 
@@ -147,16 +152,21 @@ module MagicWildRice
           contig_files << oases(name, left, right)
           contig_files << trinity(name, left, right)
           contig_files << sga(name, left, right)
-          # add more assembly methods here
 
+          # run transrate with all reads
+          left = pre.data[0][:prenorm]
+          right = pre.data[1][:prenorm]
           # transrate all contigs individually
           scores = transrate contig_files, left, right
+          p = Plot.new File.join(path, "transrate")
+          p.transrate_scores
           # filter out contigs with 0.01 score
           contig_files = filter_contigs scores, contig_files
           # cluster all contigs
           cluster = Cluster.new
           output = cluster.run(name, contig_files, scores)
           puts "best contigs saved in #{output}\n"
+          info["transcriptome"] = File.expand_path(output)
         end
       end
     end
@@ -207,7 +217,7 @@ module MagicWildRice
           Bio::FastaFormat.open(file).each do |entry|
             name = entry.entry_id
             if scores.key?(name)
-              if scores[name] > 0.01
+              if scores[name] > @cutoff
                 str << ">#{name}\n"
                 str << "#{entry.seq}\n"
               end
@@ -215,8 +225,6 @@ module MagicWildRice
               puts "can't find #{name} in scores hash"
             end
           end
-
-          puts "writing new filtered fasta file #{new_filename}"
           File.open("#{new_filename}", "wb") { |out| out.write(str)}
         end
         new_files << new_filename
@@ -280,9 +288,14 @@ module MagicWildRice
       return scores
     end
 
+    def find_homologs
+      # check synteny output to see if parents have been assembled using tophat
+
+    end
+
     def download info
       # download genomes
-      name = info["desc"].tr(" ", "_").downcase
+      name = info["desc"].gsub(/[\/\ ]/, "_").downcase
       path = File.join("data", "genomes", name)
       FileUtils.mkdir_p(path)
       Dir.chdir(path) do |dir|

@@ -12,7 +12,10 @@ module MagicWildRice
       @threads = threads
     end
 
-    def run reference, left, right
+    def run name, left, right
+      @name = name
+      reference = File.expand_path(File.join("data", "genomes", name,
+                                               info["genome"]["fa"]))
       build_index reference
       tophat left, right
       cufflinks
@@ -20,7 +23,7 @@ module MagicWildRice
     end
 
     def build_index reference
-      @output = "tophat_#{File.basename(reference, File.extname(reference))}"
+      @output = @name
       @index = File.basename(reference, File.extname(reference))
       cmd = "#{@build} #{reference} #{@index}"
       indexer = Cmd.new cmd
@@ -77,7 +80,7 @@ module MagicWildRice
     end
 
     def assemble reference
-      fasta = "#{@output}/#{@index}-transcripts.fa"
+      fasta = "#{@output}/#{@name}-transcripts.fa"
       cmd =  "#{@gffread} "
       cmd << " -w #{fasta}"
       cmd << " -g #{reference}"

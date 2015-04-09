@@ -67,12 +67,11 @@ module MagicWildRice
       left = info["files"][0]
       right = info["files"][1]
       name = info["desc"].tr(" ", "_").downcase
-      reference = File.expand_path(File.join("data", "genomes", name, info["genome"]["fa"]))
       path = File.expand_path(File.join("data", "synteny"))
       FileUtils.mkdir_p(path)
 
       Dir.chdir(path) do |dir|
-        fasta = @assembler.run reference, left, right
+        fasta = @assembler.run name, left, right
         path = File.join(path, fasta)
       end
       return path
