@@ -71,7 +71,7 @@ module MagicWildRice
       FileUtils.mkdir_p(path)
 
       Dir.chdir(path) do |dir|
-        fasta = @assembler.run name, left, right
+        fasta = @assembler.run info, left, right
         path = File.join(path, fasta)
       end
       return path

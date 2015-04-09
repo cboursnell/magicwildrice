@@ -12,10 +12,10 @@ module MagicWildRice
       @threads = threads
     end
 
-    def run name, left, right
-      @name = name
-      reference = File.expand_path(File.join("data", "genomes", name,
-                                               info["genome"]["fa"]))
+    def run info, left, right
+      @name = info["desc"].tr(" ", "_").downcase
+      path = File.join("data", "genomes", @name, info["genome"]["fa"])
+      reference = File.expand_path(path)
       build_index reference
       tophat left, right
       cufflinks
