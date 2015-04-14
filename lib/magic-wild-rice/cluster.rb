@@ -18,7 +18,7 @@ module MagicWildRice
       cat << " > #{catted_fasta}"
       puts cat
       catter = Cmd.new cat
-      catter.run
+      catter.run catted_fasta
       puts "vsearch..."
       cluster_output = "#{name}-clusters.txt"
       vsearch = "#{@vsearch}"
@@ -35,6 +35,7 @@ module MagicWildRice
     end
 
     def parse_output name, cluster_output, fasta, scores
+      puts "  parsing vsearch output..."
       sequences = {}
       clusters = {}
       Bio::FastaFormat.open(fasta).each do |entry|

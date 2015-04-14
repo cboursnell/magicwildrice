@@ -14,9 +14,7 @@ module MagicWildRice
     def run name, left, right
       trinity = Cmd.new build_cmd name, left, right
       output = File.join("trinity", "Trinity.fasta")
-      unless File.exist?(output)
-        trinity.run
-      end
+      trinity.run output
       return output
     end
 

@@ -14,6 +14,7 @@ module MagicWildRice
 
     def run list, threads=8
       # assemble parents using reference genome
+      @assembler.threads = threads
       list.each do |info|
         download(info)
         fasta = tophat(info)
@@ -111,11 +112,11 @@ module MagicWildRice
     end
 
     def load_gtf info
-      name = info["desc"]
+      name = info["desc"].tr(" ", "_").downcase
       path = File.expand_path(File.join("data", "synteny"))
       genome = info["genome"]["fa"]
       genome = File.basename(genome, File.extname(genome))
-      tophat_output = "tophat_#{genome}/transcripts.gtf"
+      tophat_output = "#{name}/transcripts.gtf"
       tophat_output = File.join(path, tophat_output)
       maximum = {}
       File.open(tophat_output).each_line do |line|

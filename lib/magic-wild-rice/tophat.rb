@@ -4,6 +4,8 @@ module MagicWildRice
 
   class Tophat
 
+    attr_accessor :threads
+
     def initialize threads = 8
       @build = Which::which('bowtie2-build').first
       @tophat = Which::which('tophat2').first
@@ -14,7 +16,8 @@ module MagicWildRice
 
     def run info, left, right
       @name = info["desc"].tr(" ", "_").downcase
-      path = File.join("data", "genomes", @name, info["genome"]["fa"])
+      gem_dir = Gem.loaded_specs['magic-wild-rice'].full_gem_path
+      path = File.join(gem_dir, "data", "genomes", @name, info["genome"]["fa"])
       reference = File.expand_path(path)
       build_index reference
       tophat left, right
@@ -24,8 +27,11 @@ module MagicWildRice
 
     def build_index reference
       @output = @name
-      @index = File.basename(reference, File.extname(reference))
+      # @index = File.basename(reference, File.extname(reference))
+      @index = @name
       cmd = "#{@build} #{reference} #{@index}"
+      puts "building #{@index}"
+      puts cmd
       indexer = Cmd.new cmd
       unless File.exist?("#{@index}.1.bt2")
         indexer.run
