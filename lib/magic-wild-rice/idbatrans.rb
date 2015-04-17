@@ -50,7 +50,7 @@ module MagicWildRice
       unless File.exist?(output)
         cmd = "#{@fq2fa} --merge #{left} #{right} #{output}"
         merge = Cmd.new cmd
-        merge.run
+        merge.run output
       end
       return output
     end

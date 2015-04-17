@@ -158,9 +158,9 @@ module MagicWildRice
           right = pre.data[1][:prenorm]
           # transrate all contigs individually
           scores = transrate contig_files, left, right
-          p = Plot.new File.join(path, "transrate")
+          p = Plots.new File.join(path, "transrate")
           p.transrate_scores
-          # filter out contigs with 0.01 score
+          # filter out contigs with score < cutoff
           contig_files = filter_contigs scores, contig_files
           # cluster all contigs
           cluster = Cluster.new
@@ -268,7 +268,8 @@ module MagicWildRice
             outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
             puts cmd
             transrater = Cmd.new(cmd)
-            unless File.exist?(outfile)
+            out = File.expand_path(outfile)
+            unless File.exist?(out)
               transrater.run
               File.open("#{File.basename(fasta)}.log","wb") do |out|
                 out.write transrater.stdout
@@ -290,7 +291,13 @@ module MagicWildRice
 
     def find_homologs
       # check synteny output to see if parents have been assembled using tophat
-
+      @parents.each do |parent|
+        name = parent["desc"].tr(" ", "_").downcase
+        fasta = "#{name}-transcripts.fa"
+        transcriptome = File.join("data", "synteny", name, fasta)
+        puts name
+        puts File.stat(transcriptome).size
+      end
     end
 
     def download info
