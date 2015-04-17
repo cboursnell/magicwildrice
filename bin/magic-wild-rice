@@ -13,6 +13,7 @@ opts = Trollop::options do
   opt :assembly, "Assemble crosses"
   opt :de_novo, "Do de novo assembly"
   opt :reference_based, "Do reference based assembly"
+  opt :homology, "Homology"
   opt :threads, "How many threads", :type => :int, :default => 8
 end
 
@@ -43,4 +44,8 @@ end
 
 if opts.reference_based
   magic.reference_based
+end
+
+if opts.homology
+  magic.homology
 end

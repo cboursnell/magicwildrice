@@ -28,13 +28,11 @@ module MagicWildRice
       @threads = threads
       reference_based
       de_novo
-      find_homologs
     end
 
     def run_de_novo threads
       @threads = threads
       de_novo
-      find_homologs
     end
 
     def run_reference threads
@@ -124,7 +122,7 @@ module MagicWildRice
       # don't use transrate automatic cutoff
       @memory = 128
       #
-      @all.each do |info|
+      @crosses.each do |info|
         left = info["files"][0]
         right = info["files"][1]
         name = info["desc"].gsub(/[\/\ ]/, "_").downcase
@@ -140,7 +138,7 @@ module MagicWildRice
           puts "trimming..."
           pre.trimmomatic
           puts "hammering..."
-          pre.hammer_batch
+          pre.hammer
           puts "norming..."
           pre.bbnorm
           # run assembly with just normalised reads
@@ -209,7 +207,7 @@ module MagicWildRice
     def filter_contigs scores, contig_files
       new_files = []
       contig_files.each do |file|
-        puts "filtering on #{file}..."
+        puts "filtering on #{File.basename(file)}..."
         new_filename = "#{File.basename(file, File.extname(file))}_filtered.fa"
         new_filename = File.expand_path(new_filename)
         unless File.exist?(new_filename)
@@ -265,17 +263,20 @@ module MagicWildRice
             cmd << " --right #{right}"
             cmd << " --outfile transrate"
             cmd << " --threads #{@threads}"
+            cmd << " --loglevel debug"
             outfile = "transrate_#{File.basename(fasta)}_contigs.csv"
-            puts cmd
+            # puts cmd
             transrater = Cmd.new(cmd)
             out = File.expand_path(outfile)
             unless File.exist?(out)
+              # puts "transrate output #{out} doesn't exist. Running transrate"
               transrater.run
               File.open("#{File.basename(fasta)}.log","wb") do |out|
                 out.write transrater.stdout
               end
             end
             count = 0
+            puts "  parsing #{outfile}"
             CSV.foreach(outfile, :headers => true,
                                  :header_converters => :symbol,
                                  :converters => :all) do |row|
@@ -291,12 +292,65 @@ module MagicWildRice
 
     def find_homologs
       # check synteny output to see if parents have been assembled using tophat
+      list = []
       @parents.each do |parent|
-        name = parent["desc"].tr(" ", "_").downcase
+        name = parent["desc"].gsub(/[\ \/]/, "_").downcase
         fasta = "#{name}-transcripts.fa"
         transcriptome = File.join("data", "synteny", name, fasta)
-        puts name
-        puts File.stat(transcriptome).size
+        parent["transcriptome"] = File.expand_path(transcriptome)
+        puts transcriptome
+        list << parent
+      end
+      @crosses.each do |cross|
+        name = cross["desc"].gsub(/[\ \/]/, "_").downcase
+        fasta = "#{name}_best.fa"
+        transcriptome = File.join("data", "assembly", "de_novo", name, fasta)
+        cross["transcriptome"] = File.expand_path(transcriptome)
+        puts transcriptome
+        list << cross
+      end
+      # do all vs all crb-blast
+      @synteny_hash = {}
+      @synteny_list = []
+      list.each_with_index do |a, i|
+        list.each_with_index do |b, j|
+          if i!=j
+            query_file = a["transcriptome"]
+            target_file = b["transcriptome"]
+            query_name = a["desc"].gsub(/[\ \/]/, "_").downcase
+            target_name = b["desc"].gsub(/[\ \/]/, "_").downcase
+            path = "#{query_name}-v-#{target_name}"
+            FileUtils.mkdir_p(path)
+            Dir.chdir(path) do
+              puts "creating new crb-blast object with "
+              puts "  query_file: #{query_file}"
+              puts "  targetfile: #{target_file}"
+              puts "___"
+              blaster = CRB_Blast::CRB_Blast.new(query_file, target_file)
+              blaster.makedb
+              blaster.run(1e-5, @threads, true)
+              blaster.load_outputs
+              blaster.find_reciprocals
+              blaster.find_secondaries
+              crb = "#{query_name}-#{target_name}.crb"
+              File.open(crb, "wb") do |out|
+                blaster.reciprocals.each_pair do |query_id, hits|
+                  hits.each do |hit|
+                    out.write "#{hit}\n"
+                    @synteny_list << { :query_species => query_name,
+                                       :target_species => target_name,
+                                       :query => hit.query,
+                                       :target => hit.target }
+                    from_key = "#{query_name}:#{hit.query}"
+                    to_key = "#{target_name}:#{hit.target}"
+                    @synteny_hash[from_key] = to_key
+                    @synteny_hash[to_key] = from_key
+                  end
+                end
+              end
+            end
+          end
+        end
       end
     end
 

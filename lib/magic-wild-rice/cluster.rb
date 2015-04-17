@@ -16,7 +16,6 @@ module MagicWildRice
         cat << " #{fasta} "
       end
       cat << " > #{catted_fasta}"
-      puts cat
       catter = Cmd.new cat
       catter.run catted_fasta
       puts "vsearch..."
@@ -27,10 +26,11 @@ module MagicWildRice
       vsearch << " --strand both"
       vsearch << " --uc #{cluster_output}"
       cluster = Cmd.new vsearch
-      unless File.exist?(cluster_output)
-        cluster.run
+      cluster.run cluster_output
+      @output = "#{name}_best.fa"
+      unless File.exist?(@output)
+        parse_output name, cluster_output, catted_fasta, scores
       end
-      parse_output name, cluster_output, catted_fasta, scores
       return @output
     end
 
@@ -41,6 +41,7 @@ module MagicWildRice
       Bio::FastaFormat.open(fasta).each do |entry|
         sequences[entry.entry_id] = entry.seq
       end
+      puts "  parsing clustering output..."
       File.open(cluster_output).each_line do |line|
         if line.start_with?("S") or line.start_with?("H")
           cols = line.chomp.split("\t")
@@ -50,7 +51,7 @@ module MagicWildRice
           clusters[cluster] << contig_name
         end
       end
-      @output = "#{name}_best.fa"
+      puts "  writing output..."
       File.open(@output, "wb") do |out|
         clusters.each do |cluster_id, list|
           best_score = 0

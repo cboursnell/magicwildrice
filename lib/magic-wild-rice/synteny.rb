@@ -6,13 +6,14 @@ module MagicWildRice
   class Synteny
 
     def initialize
-      @assembler = Tophat.new
       @synteny_list = []
       @synteny_hash = {}
       @annotation = {}
     end
 
-    def run list, threads=8
+    def run list, threads
+      @threads = threads
+      @assembler = Tophat.new threads
       # assemble parents using reference genome
       @assembler.threads = threads
       list.each do |info|
@@ -25,7 +26,7 @@ module MagicWildRice
       # do pairwise crb-blast
       (0..list.length-2).each do |i|
         (i+1..list.length-1).each do |j|
-          puts "blasting #{i} and #{j}"
+          puts "blasting #{list[i]["desc"]} and #{list[j]["desc"]}"
           crb(list[i], list[j])
         end
       end
@@ -84,30 +85,31 @@ module MagicWildRice
         query_file = query["transcriptome"]
         target_file = target["transcriptome"]
         blaster = CRB_Blast::CRB_Blast.new(query_file, target_file)
+        query_name = query["desc"].tr(" ", "_").downcase
+        target_name = target["desc"].tr(" ", "_").downcase
+        crb = "#{query_name}-#{target_name}.crb"
         dbs = blaster.makedb
-        run = blaster.run_blast(1e-5, 8, true)
+        run = blaster.run_blast(1e-5, @threads, true)
         load = blaster.load_outputs
         recips = blaster.find_reciprocals
         secondaries = blaster.find_secondaries
 
-        query_name = query["desc"].tr(" ", "_").downcase
-        target_name = target["desc"].tr(" ", "_").downcase
-        File.open("#{query_name}-#{target_name}.crb", 'w') do |out|
+        File.open(crb, 'w') do |out|
           blaster.reciprocals.each_pair do |query_id, hits|
             hits.each do |hit|
               out.write "#{hit}\n"
-              @synteny_list << { :query_species => query["desc"],
-                                 :target_species => target["desc"],
+              @synteny_list << { :query_species => query_name,
+                                 :target_species => target_name,
                                  :query => hit.query,
                                  :target => hit.target }
-              from_key = "#{query["desc"]}:#{hit.query}"
-              to_key = "#{target["desc"]}:#{hit.target}"
+              from_key = "#{query_name}:#{hit.query}"
+              to_key = "#{target_name}:#{hit.target}"
               @synteny_hash[from_key] = to_key
               @synteny_hash[to_key] = from_key
             end
           end
         end
-        blaster.tidy_up
+        # blaster.tidy_up
       end
     end
 
@@ -119,6 +121,7 @@ module MagicWildRice
       tophat_output = "#{name}/transcripts.gtf"
       tophat_output = File.join(path, tophat_output)
       maximum = {}
+      puts "opening #{tophat_output}"
       File.open(tophat_output).each_line do |line|
         cols = line.chomp.split("\t")
         if cols[2] == "transcript"
@@ -135,18 +138,27 @@ module MagicWildRice
           @annotation["#{name}:#{desc}"] = { :chrom => chrom,
                                              :start => start,
                                              :stop => stop }
+
           maximum[chrom] ||= 0
           if maximum[chrom] < start
             maximum[chrom] = start
           end
         end
       end
+      # p maximum
+      # @annotation.each do |key, value|
+      #   if rand < 0.0001
+      #     puts "#{key}\t#{value}"
+      #   end
+      # end
       maximum.each do |key, value|
         if value < 1_000_000
+          # puts "deleting all genes from #{key} because length==#{value}"
           list = @annotation.keys
           list.each do |namedesc|
             if @annotation[namedesc][:chrom]==key
               @annotation.delete(namedesc)
+              # puts "deleting #{namedesc} from @annotation"
             end
           end
         end
