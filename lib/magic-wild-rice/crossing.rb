@@ -22,7 +22,7 @@ module MagicWildRice
 
     def run threads
       # map reads from 4way to each parent
-      map
+      map threads
       puts "scanning"
       scan
       puts "selecting"
@@ -30,9 +30,10 @@ module MagicWildRice
       #
     end
 
-    def map
+    def map threads
       # map reads from the crosses to the genomes of the parents
       mapper = Snap.new
+      seed_size = 23
       @crosses.each do |cross|
         @parents.each do |parent|
           path = File.expand_path(File.join("data", "crossing",
@@ -44,7 +45,7 @@ module MagicWildRice
           left =  File.expand_path(parent["files"][0])
           right = File.expand_path(parent["files"][1])
           Dir.chdir(path) do
-            mapper.build_index reference
+            mapper.build_index reference, threads, seed_size
             sam = mapper.map_reads left, right
             parent["sam"] = sam
           end

@@ -42,11 +42,11 @@ module MagicWildRice
       @sam
     end
 
-    def build_index file, threads=8
+    def build_index file, threads=8, seed_size=20
       @index_name = "#{File.basename(file, File.extname(file))}_index"
       unless Dir.exists?(@index_name)
         cmd = "#{@snap} index #{file} #{@index_name}"
-        cmd << " -s 23"
+        cmd << " -s #{seed_size}"
         cmd << " -t#{threads}"
         cmd << " -bSpace" # contig name terminates with space char
         runner = Cmd.new cmd

@@ -1,0 +1,121 @@
+---
+- name: S
+  desc: 'Sativa'
+  files:
+  - 'data/dna/IRRI-154_1.fq'
+  - 'data/dna/IRRI-154_2.fq'
+- name: B1
+  desc: 'Barthii'
+  files:
+  - 'data/dna/IRGC-106017-305_1.fq'
+  - 'data/dna/IRGC-106017-305_2.fq'
+- name: B2
+  desc: 'Barthii2'
+  files:
+  - 'data/dna/IRGC-106017-B1_1.fq'
+  - 'data/dna/IRGC-106017-B1_2.fq'
+- name: B3
+  desc: 'Barthii'
+  files:
+  - 'data/dna/IRGC-100936-B2_1.fq'
+  - 'data/dna/IRGC-100936-B2_2.fq'
+- name: G
+  desc: 'Glaberrima'
+  files:
+  - 'data/dna/IRGC-96717-303_1.fq'
+  - 'data/dna/IRGC-96717-303_2.fq'
+- name: M
+  desc: 'Meridionalis'
+  files:
+  - 'data/dna/IRGC-105290-301_1.fq'
+  - 'data/dna/IRGC-105290-301_2.fq'
+- name: R1
+  desc: 'Rufipogon'
+  files:
+  - 'data/dna/IRGC-106123-303_1.fq'
+  - 'data/dna/IRGC-106123-303_2.fq'
+- name: R2
+  desc: 'Rufipogon2'
+  files:
+  - 'data/dna/IRGC-106412-R11_1.fq'
+  - 'data/dna/IRGC-106412-R11_2.fq'
+- name: R3
+  desc: 'Rufipogon3'
+  files:
+  - 'data/dna/105910-1_1.fq'
+  - 'data/dna/105910-1_2.fq'
+- name: U1
+  desc: 'Glumaepatula'
+  files:
+  - 'data/dna/IRGC-105692-305_1.fq'
+  - 'data/dna/IRGC-105692-305_2.fq'
+- name: U2
+  desc: 'Glumaepatula'
+  files:
+  - 'data/dna/IRGC-105672-U2_1.fq'
+  - 'data/dna/IRGC-105672-U2_1.fq'
+- name: N1
+  desc: 'Nivara1'
+  files:
+  - 'data/dna/IRGC-101508-N1_1.fq'
+  - 'data/dna/IRGC-101508-N1_2.fq'
+- name: N2
+  desc: 'Nivara2'
+  files:
+  - 'data/dna/IRGC-80455-N2_1.fq'
+  - 'data/dna/IRGC-80455-N2_2.fq'
+- name: N3
+  desc: 'Nivara3'
+  files:
+  - 'data/dna/101510-301-3_1.fq'
+  - 'data/dna/101510-301-3_2.fq'
+- name: L
+  desc: 'Longistaminata'
+  files:
+  - 'data/dna/89153-304-2_1.fq'
+  - 'data/dna/89153-304-2_2.fq'
+- name: SL
+  desc: 'Sativa/Longistaminata'
+  files:
+  - 'data/dna/IR-103012-8_1.fq'
+  - 'data/dna/IR-103012-8_2.fq'
+- name: SN
+  desc: 'Sativa/Nivara'
+  files:
+  - 'data/dna/IR-105447-303_1.fq'
+  - 'data/dna/IR-105447-303_2.fq'
+- name: SR
+  desc: 'Sativa/Rufipogon'
+  files:
+  - 'data/dna/IR-105460-303_1.fq'
+  - 'data/dna/IR-105460-303_2.fq'
+- name: SM
+  desc: 'Sativa/Meridionalis'
+  files:
+  - 'data/dna/IRRI-154_1.fq'
+  - 'data/dna/IRRI-154_2.fq'
+- name: SB
+  desc: 'Sativa/Barthii'
+  files:
+  - 'data/dna/IR-103022_1.fq'
+  - 'data/dna/IR-103022_2.fq'
+- name: SG
+  desc: 'Sativa/Glaberrima'
+  files:
+  - 'data/dna/105409-301-1_1.fq'
+  - 'data/dna/105409-301-1_2.fq'
+- name: SU
+  desc: 'Sativa/Glumaepatula'
+  files:
+  - 'data/dna/105423-301-2_1.fq'
+  - 'data/dna/105423-301-2_2.fq'
+- name: SBSN
+  desc: 'Sativa/Barthii/Sativa/Nivara'
+  files:
+  - 'data/dna/IR-108755-304_1.fq'
+  - 'data/dna/IR-108755-304_2.fq'
+- name: SGSR
+  desc: 'Sativa/Glaberrima/Sativa/Rufipogon'
+  files:
+  - 'data/dna/108773-309-2_1.fq'
+  - 'data/dna/108773-309-2_2.fq'
