@@ -62,6 +62,11 @@ module MagicWildRice
       snp.run @threads
     end
 
+    def homology
+      h = Homology.new @files
+      h.run @threads
+    end
+
     def fastqc
       return if @files.nil? or @files.size == 0
       read_count = File.join("data", "fastqc", "read_counts.txt")

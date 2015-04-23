@@ -12,7 +12,7 @@ module MagicWildRice
 
     def run file=nil
       unless file.nil?
-        puts "tesing existence of #{file}"
+        # puts "testing existence of #{file}"
         return true if File.exist?(file)
       end
       @stdout, @stderr, @status = Open3.capture3 @cmd

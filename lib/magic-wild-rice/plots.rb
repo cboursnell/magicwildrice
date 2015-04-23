@@ -42,6 +42,9 @@ module MagicWildRice
       script = File.join(@rpath, "synteny_plot.R")
       rscript = Cmd.new("Rscript #{script} -p #{@dir}")
       rscript.run
+      puts "synteny plot"
+      puts "#{rscript.stdout}"
+      puts "#{rscript.stderr}"
     end
 
     def transrate_scores

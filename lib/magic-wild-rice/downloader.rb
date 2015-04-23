@@ -7,6 +7,8 @@ module MagicWildRice
 
   class Downloader
 
+    attr_reader :file
+
     def initialize(url)
       @url = url
       @curl = Which::which('curl').first
@@ -83,6 +85,7 @@ module MagicWildRice
       else
         file = name
       end
+      @file = file
       if File.exist?(file)
         return true
       else

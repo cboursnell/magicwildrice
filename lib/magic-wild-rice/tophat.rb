@@ -22,7 +22,7 @@ module MagicWildRice
       build_index reference
       tophat left, right
       cufflinks
-      return assemble reference
+      return assemble(reference)
     end
 
     def build_index reference
